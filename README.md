@@ -2,7 +2,7 @@
 
 [![ci](https://github.com/tomasG1414/godt-research-wiki/actions/workflows/ci.yml/badge.svg)](https://github.com/tomasG1414/godt-research-wiki/actions/workflows/ci.yml)
 
-**In brief.** An independent student project (BSc Physics, 3rd year, Universidad Europea de Valencia).
+**In brief.** An independent student project (Physics student, 3rd year, Universidad Europea de Valencia).
 Gradient optical diffraction tomography (GODT) is a recent label-free 3D microscopy method:
 it measures how a cell bends light and reconstructs a 3D map of its refractive-index *gradient*.
 At the shear (the small image offset the instrument relies on) used in the published experiment,
@@ -113,4 +113,4 @@ Quoted excerpts remain the property of their authors. See [`CITATION.cff`](CITAT
 also cite the original GODT paper: J. Winnik *et al.*, *Communications Physics* **8**, 510 (2025).
 
 ---
-Tomás Gantes Montero · BSc Physics, Universidad Europea de Valencia
+Tomás Gantes Montero · Physics student, Universidad Europea de Valencia
