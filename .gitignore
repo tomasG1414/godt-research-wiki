@@ -1,0 +1,31 @@
+# Obsidian per-machine state
+.obsidian/
+
+# Claude Code: per-machine permissions and temporary worktrees
+.claude/settings.local.json
+.claude/worktrees/
+
+# Generated lab output (regenerate by re-running the scripts)
+lab/out/
+
+# OS / editor noise
+.DS_Store
+Thumbs.db
+desktop.ini
+.trash/
+
+.idea/
+.vscode/
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# Source papers: copyrighted, never committed
+raw/**/*.pdf
+raw/**/*.djvu
+raw/**/*.epub
+.ruff_cache/
+.pytest_cache/

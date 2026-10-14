@@ -1,0 +1,34 @@
+cff-version: 1.2.0
+message: "If you use this code or notes, please cite it as below."
+title: "Multi-shear gradient optical diffraction tomography: a simulation study"
+authors:
+  - family-names: "Gantes Montero"
+    given-names: "Tomás"
+date-released: 2026-10-14
+license:
+  - MIT
+  - CC-BY-4.0
+type: software
+references:
+  - type: article
+    title: "Gradient optical diffraction tomography"
+    authors:
+      - family-names: Winnik
+        given-names: J.
+      - family-names: Zdańkowski
+        given-names: P.
+      - family-names: Stefaniuk
+        given-names: M.
+      - family-names: Ahmad
+        given-names: A.
+      - family-names: Zuo
+        given-names: C.
+      - family-names: Ahluwalia
+        given-names: B. S.
+      - family-names: Trusiak
+        given-names: M.
+    journal: "Communications Physics"
+    volume: 8
+    start: 510
+    year: 2025
+    doi: "10.1038/s42005-025-02416-3"

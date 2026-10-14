@@ -1,0 +1,26 @@
+name: ci
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.11", "3.13"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install dependencies
+        run: pip install -r lab/requirements.txt pytest
+      - name: Library selftest
+        run: pytest -q tests
+      - name: Wiki link check
+        run: python tools/lint.py
+      - name: Reproduce exp01
+        working-directory: lab
+        run: python exp01_shear_nulls.py
