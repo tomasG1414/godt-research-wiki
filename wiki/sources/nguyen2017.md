@@ -2,9 +2,9 @@
 type: source
 projects: [godt]
 created: 2026-07-18
-updated: 2026-07-18
+updated: 2026-10-20
 status: current
-source: "Nature Communications 8, 210 (2017)"
+source: "https://doi.org/10.1038/s41467-017-00190-7"
 ---
 
 # Gradient Light Interference Microscopy for 3D Imaging of Unlabeled Specimens

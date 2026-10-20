@@ -2,9 +2,9 @@
 type: source
 projects: [godt]
 created: 2026-07-18
-updated: 2026-07-18
+updated: 2026-10-20
 status: current
-source: "https://doi.org/10.1364/OPTICA.8.000006"
+source: "https://doi.org/10.1364/OPTICA.410135"
 ---
 
 # Quantitative 3D Refractive Index Tomography of Opaque Samples in Epi-Mode
@@ -28,7 +28,7 @@ Non-interferometric: intensity-only through-focus image stacks (Δz≈0.35-0.5μ
 
 ## Relevance
 
-Per [[godt]]: cited directly by [[2411-08423-godt]] (ref 56) as part of the broader "oblique back-illuminated microscopy" branch of the [[gradient-phase-imaging]] family (differential/DPC-like contrast from paired oblique illumination, structurally similar in spirit to GODT's shearing-derived gradient signal, though qOBM's "gradient" comes from illumination-pair subtraction rather than beam-shearing). The two share the missing-cone/axial-elongation problem and the TV-regularization cost/quality tradeoff as generic consequences of limited-angle 3D reconstruction, independent of illumination modality. Not directly applicable hardware for GODT (incoherent, non-interferometric, opaque-sample regime) but a useful reference for how a fundamentally different measurement geometry hits the same reconstruction-theory walls GODT does — reinforces that these limitations (missing cone, TV cost) are properties of the *inverse problem*, not of any specific optical implementation.
+Per [[godt]]: cited directly by [[2411-08423-godt]] (ref 56) as part of the broader "Oblique Plane Back Illuminated Microscopy" branch of the [[gradient-phase-imaging]] family (differential/DPC-like contrast from paired oblique illumination, structurally similar in spirit to GODT's shearing-derived gradient signal, though qOBM's "gradient" comes from illumination-pair subtraction rather than beam-shearing). The two share the missing-cone/axial-elongation problem and the TV-regularization cost/quality tradeoff as generic consequences of limited-angle 3D reconstruction, independent of illumination modality. Not directly applicable hardware for GODT (incoherent, non-interferometric, opaque-sample regime) but a useful reference for how a fundamentally different measurement geometry hits the same reconstruction-theory walls GODT does — reinforces that these limitations (missing cone, TV cost) are properties of the *inverse problem*, not of any specific optical implementation.
 
 ## Raises
 

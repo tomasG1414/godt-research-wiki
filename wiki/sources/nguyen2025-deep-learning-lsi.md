@@ -2,9 +2,9 @@
 type: source
 projects: [godt]
 created: 2026-07-18
-updated: 2026-07-18
+updated: 2026-10-20
 status: current
-source: "Optics and Lasers in Engineering 191, 109010 (2025)"
+source: "https://doi.org/10.1016/j.optlaseng.2025.109010"
 ---
 
 # Deep Learning-Based Single-Shot Lateral Shearing Interferometry

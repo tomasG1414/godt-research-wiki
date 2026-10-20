@@ -2,9 +2,9 @@
 type: source
 projects: [godt]
 created: 2026-07-18
-updated: 2026-07-18
+updated: 2026-10-20
 status: current
-source: "Scientific Reports 9, 18872 (2019)"
+source: "https://doi.org/10.1038/s41598-019-55330-4"
 ---
 
 # 3D-Printed Biological Cell Phantom for Testing 3D Quantitative Phase Imaging Systems

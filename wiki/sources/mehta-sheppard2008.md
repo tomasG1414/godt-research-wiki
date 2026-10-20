@@ -2,7 +2,7 @@
 type: source
 projects: [godt]
 created: 2026-07-19
-updated: 2026-07-19
+updated: 2026-10-20
 status: current
 source: "https://doi.org/10.1364/OE.16.019462"
 ---
@@ -53,4 +53,4 @@ For [[godt]] and [[multi-shear-acquisition]], four things:
 ## Raises
 
 - Cogswell & Sheppard, *J. Microsc.* **165**, 81–101 (1992), Eq. 13 — the origin of the DIC partially coherent transfer function, and the primary citation for the null structure.
-- Arnison, Larkin, Sheppard, Smith & Cogswell, *J. Microsc.* **214**, 7–12 (2004), "Linear phase imaging using DIC" — the two-orthogonal-shear 2D reconstruction that the multi-shear extension generalises.
+- Arnison, Larkin, Sheppard, Smith & Cogswell, *J. Microsc.* **214**, 7–12 (2004), "Linear phase imaging using differential interference contrast microscopy" — the two-orthogonal-shear 2D reconstruction that the multi-shear extension generalises.
