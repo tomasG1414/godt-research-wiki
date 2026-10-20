@@ -1,14 +1,8 @@
-"""Run shearlib's invariant checks under pytest (so CI reports them by name)."""
-import os
-import sys
+"""Run shearlib's built-in invariant checks (python lab/shearlib.py) under pytest.
 
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "lab"))
-
-import matplotlib
-
-matplotlib.use("Agg")
-
-import shearlib  # noqa: E402
+One test for the whole selftest; the per-property tests are in test_units.py.
+"""
+import shearlib
 
 
 def test_selftest():

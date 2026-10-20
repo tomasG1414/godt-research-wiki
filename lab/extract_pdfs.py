@@ -16,7 +16,7 @@ import sys
 try:
     import fitz  # PyMuPDF
 except ImportError:
-    sys.exit("PyMuPDF missing.  pip install pymupdf")
+    sys.exit("PyMuPDF missing.  pip install -r lab/requirements-ingest.txt")
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 REPO = os.path.dirname(HERE)

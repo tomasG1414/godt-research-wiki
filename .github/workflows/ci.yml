@@ -4,23 +4,28 @@ on:
   push:
   pull_request:
 
+permissions:
+  contents: read
+
 jobs:
   checks:
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
-        python-version: ["3.11", "3.13"]
+        python-version: ["3.10", "3.13"]   # the README's floor and the newest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
         with:
           python-version: ${{ matrix.python-version }}
+          cache: pip
+          cache-dependency-path: lab/requirements.txt
       - name: Install dependencies
         run: pip install -r lab/requirements.txt pytest
-      - name: Library selftest
-        run: pytest -q tests
+      - name: Tests (selftest, unit tests, README numbers from exp01-03 and exp05b)
+        run: pytest -q
+        env:
+          MPLBACKEND: Agg
       - name: Wiki link check
         run: python tools/lint.py
-      - name: Reproduce exp01
-        working-directory: lab
-        run: python exp01_shear_nulls.py

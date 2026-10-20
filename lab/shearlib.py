@@ -1152,13 +1152,15 @@ def selftest():
     sel = cap["ok"] & (np.abs(Born) > 1e-6 * np.abs(Born[cap["ok"]]).max())
     assert abs(np.median(np.abs(Us[sel] / Born[sel]) /
                          (cap["kz"][sel] / cap["kiz"])) - 1) < 1e-3, "WPM obliquity"
-    # the shear factor multiplies the MEASURED field exactly, however it arose
+    # the shear factor multiplies the measured Rytov field exactly, however it arose
     rr = np.exp(0.3 * (np.random.default_rng(1).standard_normal((64, 64))
                        + 1j * np.random.default_rng(2).standard_normal((64, 64))))
     for d in (0.4, 0.8):
         sh = np.fft.fft2(shear_rytov(rr, gm.dx, (d, 0.0)))
         Gd = np.exp(1j * gm.KX * d) - 1.0
-        assert np.max(np.abs(sh - Gd * np.fft.fft2(np.log(rr)))) < 1e-9 *             np.max(np.abs(np.fft.fft2(np.log(rr)))), "shear acts as G on the measured field"
+        ref = np.max(np.abs(np.fft.fft2(np.log(rr))))
+        assert np.max(np.abs(sh - Gd * np.fft.fft2(np.log(rr)))) < 1e-9 * ref, \
+            "shear acts as G on the measured Rytov field"
     # the wrap-safe branch must be the unambiguous one: chaining one-pixel
     # differences has to reproduce a large shear exactly on a smooth field, and
     # to disagree with it on a field whose absolute phase wraps
