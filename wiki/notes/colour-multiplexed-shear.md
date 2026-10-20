@@ -2,7 +2,7 @@
 type: note
 projects: [godt]
 created: 2026-10-05
-updated: 2026-10-05
+updated: 2026-10-20
 status: current
 ---
 
@@ -206,7 +206,7 @@ $|\mu(\Delta)|$ and on assumption A4, both still open.
 - Toto-Arellano, Reyes & Escamilla Angeles, *Appl. Opt.* **65**, 1437 (2026), doi:10.1364/AO.586119. White light, RGB channel separation, phase derivative in one exposure with a cyclic-path interferometer. Its blue channel was unusable for lack of fringe visibility and camera response. That is a practical warning, since §4 makes blue the most valuable colour.
 - Wavelength-resolved ODT for composition: Jung, Kim, Yoon & Park, *Opt. Express* **24**, 2006 (2016); Sung, *Phys. Rev. Applied* **19**, 014064 (2023); Hörmann et al., arXiv:2401.07391.
 - Wavelength in place of angle: Wu et al., *Light Sci. Appl.* (2024), doi:10.1038/s41377-024-01568-1, lens-free and on-chip.
-- Reported by the earlier search in this thread and **not re-checked**: *Opt. Lett.* **49**, 3066 (2024) and Matlis et al., *Nat. Commun.* (2012), on wavelength-encoded angles in one shot.
+- Reported by an earlier web search and **not re-checked**: *Opt. Lett.* **49**, 3066 (2024) and Matlis et al., *Nat. Commun.* (2012), on wavelength-encoded angles in one shot.
 
 **What this note adds.** The hardware idea, a polarization-grating module giving a
 different shear per colour read by a colour camera, is published. This note contributes

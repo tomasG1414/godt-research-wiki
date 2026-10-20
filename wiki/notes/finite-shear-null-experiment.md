@@ -2,7 +2,7 @@
 type: note
 projects: [godt]
 created: 2026-07-18
-updated: 2026-07-18
+updated: 2026-10-20
 status: current
 ---
 
@@ -22,7 +22,7 @@ From Eq. 20, $H_\Delta(K) = \frac{e^{jK\Delta}-1}{\Delta}$. Using $|e^{i\theta}-
 
 $$\boxed{\;|H_\Delta(K)| = \frac{2\left|\sin\!\left(K\Delta/2\right)\right|}{\Delta}\;}$$
 
-Verified against direct numerical evaluation to $<10^{-14}$, and confirmed to converge to $|iK|$ as $\Delta\to0$ (relative deviation $10^{-3}$ at $\Delta=10^{-4}\,\mu$m). Zeros at $K = 2\pi m/\Delta$.
+Verified against direct numerical evaluation to about $10^{-14}$, and confirmed to converge to $|iK|$ as $\Delta\to0$ (relative deviation $10^{-3}$ at $\Delta=10^{-4}\,\mu$m). Zeros at $K = 2\pi m/\Delta$.
 
 ### Correction 1: there are two different zero structures
 
@@ -51,7 +51,7 @@ For the optimal linear (Wiener) estimator with white noise and per-frequency SNR
 
 $$\varepsilon(K) = \left[\rho\,G^2(K) + 1\right]^{-1/2}, \qquad G^2(K) = \sum_n |H_n(K)|^2$$
 
-Validated against Monte Carlo (40 000 trials/frequency) to 3–4 decimals. At a null $G=0$ so $\varepsilon = 1$ — **the frequency is lost outright, at any SNR**. This is not noise amplification that better hardware fixes; it is a structural zero.
+Validated against Monte Carlo (40 000 trials/frequency) to 3–4 decimals. At a null $G=0$, so $\varepsilon = 1$ and the frequency is lost at any SNR (with monochromatic light). Better hardware cannot fix this: the transfer factor is exactly zero there, so the data carry no information about that frequency.
 
 At ρ = 100 (20 dB), errors quoted for K > 2 rad/μm to exclude the shared low-frequency rise:
 
@@ -64,6 +64,8 @@ At ρ = 100 (20 dB), errors quoted for K > 2 rad/μm to exclude the shared low-f
 | 0.8 + 0.55 | 0.195 | 23.20 | **0.00 %** | 0.038 |
 | 0.8 + 0.08 | 0.037 | — | 0.00 % | 0.009 |
 | 0.8 + 0.55 + 0.35 | 0.031 | — | 0.00 % | 0.020 |
+
+Rows with small shears are flattered by the $H=G/\Delta$ normalisation used on this page; see the note on ranking below, and [[multishear-fusion-design-solution]] §3 for the physical ranking.
 
 ### Correction 2: commensurate shear ratios do not help
 
@@ -105,7 +107,7 @@ So **magnitudes and directions fix different things**: magnitudes fill the $m\ne
 
 ## What this does and does not establish
 
-**Does:** the null structure is real, exactly where the closed form predicts, falls inside the measurable band at GODT's published experimental shear, costs frequencies irrecoverably at any SNR, and is removed by adding an incommensurate second shear. Multi-shear now has a second quantitative motivation independent of directional contrast.
+**Does:** the null structure is real, exactly where the closed form predicts, falls inside the measurable band at GODT's published experimental shear, costs frequencies irrecoverably at any SNR (for monochromatic light), and is removed by adding an incommensurate second shear. Multi-shear now has a second quantitative motivation independent of directional contrast.
 
 **Does not:** this models the shear filter in isolation. It does not include the tomographic sampling (which $K$ are actually visited by the Ewald caps), the [[rytov-approximation]]'s validity limits, amplitude effects, or realistic experimental noise structure. The percentages are along the 1D shear axis; in 3D the null set is a family of planes perpendicular to the shear direction, so the volume fraction differs. And recovering $O$ is a different task from what GODT publishes — GODT displays the gradient field itself, so for single-shear GODT-as-published the nulls mean the displayed image simply lacks those frequencies rather than that an inversion is ill-conditioned.
 
@@ -148,5 +150,4 @@ python exp02_shear_recovery.py    # Monte Carlo, error curves, image demo
 ```
 
 Both reproduce every number on this page exactly. `lab/README.md` records what
-is established and the gotcha that sank the first attempt (see "Gotchas hit already" there and
-not establish").
+is established and the gotcha that sank the first attempt (see "Gotchas hit already" there).

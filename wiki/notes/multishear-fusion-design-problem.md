@@ -2,7 +2,7 @@
 type: note
 projects: [godt]
 created: 2026-09-21
-updated: 2026-09-21
+updated: 2026-10-20
 status: current
 ---
 
@@ -177,4 +177,4 @@ Each term has the form $t/(c+dt)$, which is concave, so $J_\text{rob}$ is concav
 - Phantoms: textured cell-like (primary), Shepp–Logan, nano-printed geometry.
 - Designs compared at fixed $T N_\text{ph}$: single shear 0.1 μm; single 0.8 μm; orthogonal pair; equal-weight averaging of per-channel reconstructions; BLUE/Wiener fusion; optimal design (P-A, P-W).
 - Metrics: MSE spectrum vs theory; RMSE and SSIM of $O$ (or $n$ after integration) on the measurable band; axial elongation on spherical features.
-- Code: extend `lab/shearlib.py`; new script to be named here once written.
+- Code: `lab/shearlib.py`, with `lab/exp03_ewald_fisher.py` to `lab/exp05_fusion_validation.py` (see [[multishear-fusion-design-solution]]).

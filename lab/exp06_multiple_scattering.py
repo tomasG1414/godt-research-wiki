@@ -244,12 +244,14 @@ def main():
     # ================================================================ STAGE 2
     print()
     print(RULE)
-    print("2. THE NULLS ARE EXACTLY PRESERVED -- shearing is linear in the MEASURED field")
+    print("2. THE NULLS ARE EXACTLY PRESERVED -- shearing is linear in the measured Rytov field")
     print(RULE)
     print("  Shearing acts on u_R after all propagation, so")
     print("      FT[u_R(r+D) - u_R(r)](K_perp) = (e^{i K_perp.D} - 1) FT[u_R](K_perp)")
-    print("  is an identity in the measured field, whatever u_R's relation to O. Multiple")
-    print("  scattering cannot put signal where G = 0. Checked on the WPM field at contrast 1:")
+    print("  is an identity in the measured Rytov field u_R = log(u/u_inc), whatever u_R's")
+    print("  relation to O. Multiple scattering cannot put signal where G = 0. Checked on the")
+    print("  WPM field at contrast 1 (a check of the implementation: this is the DFT shift")
+    print("  theorem on a periodic grid with whole-pixel shears, so it cannot fail physically):")
     w_f = WPM(embed(nmed + dn1, PAD), grid.dx, grid.dz, cfg.lam, nmed,
               n_levels=N_LEVELS, dtype=np.complex128)
     r_ms = crop(w_f.to_centre(w_f.run(ki0), ki0), grid.n)

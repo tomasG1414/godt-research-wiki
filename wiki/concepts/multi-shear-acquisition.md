@@ -2,7 +2,7 @@
 type: concept
 projects: [godt]
 created: 2026-07-18
-updated: 2026-10-05
+updated: 2026-10-20
 status: current
 ---
 
@@ -33,7 +33,7 @@ The cleanest design rule the 3D study produced, and the one a reader can act on.
 
 ## Direction diversity saturates — the two motivations are not equal
 
-**Added 2026-07-19 after the Zhu group trio.** This is the most consequential revision to this page. Three papers from one metrology group measured what extra shear *directions* actually buy, holding magnitude fixed:
+Three papers from one metrology group measured what extra shear *directions* actually buy, holding magnitude fixed:
 
 | directions | source | RMS gain |
 |---|---|---|
@@ -43,11 +43,11 @@ The cleanest design rule the 3D study produced, and the one a reader can act on.
 
 Gains are modest, saturate by about two orthogonal pairs, and are **error averaging** rather than recovery of missing information — [[zhu2024-appl-phys-b]] says so directly ("effectively mitigates the impact of random system errors"). That is theoretically unsurprising: one orthogonal pair already spans the full transverse gradient, so further directions are largely redundant.
 
-The consequence for this project's argument: motivations 1 and 2 above are **not comparable claims**, and framing them as two halves of one case is a mistake. Directional contrast is a real but bounded effect fixable by one orthogonal pair. Null-filling by **magnitude** diversity recovers information that is otherwise structurally absent at any SNR. Magnitude diversity is the load-bearing part of the extension; direction diversity is the narrower fix for the $K_x=0$ blind line.
+The consequence for this project's argument: motivations 1 and 2 above are **not comparable claims**, and framing them as two halves of one case is a mistake. Directional contrast is a real but bounded effect fixable by one orthogonal pair. Null-filling recovers information that is otherwise structurally absent at any SNR. **[audit 2026-10-20]** An earlier version credited that to magnitude diversity alone and called direction diversity the narrower fix for the $K_x=0$ blind line. In 3D that is wrong: a second direction's data also cover most of the first direction's null planes (0.8 $x$ + 0.8 $y$ loses 0.09 % of the support against 3.02 % for 0.8 $x$; [[multishear-fusion-design-solution]] §3), and a second magnitude removes the residue where both directions are blind. The saturation discussed here is about adding directions beyond one orthogonal pair.
 
 **Two reasons not to over-read the saturation result.** All three papers reconstruct smooth, low-order wavefronts in a **global Zernike basis**, which is largely immune to a transfer zero at any single spatial frequency, so null damage would not show up there. And none of them varies shear *magnitude*. They bound direction diversity; they say nothing about magnitude diversity. *(inference; as the authors note, their method "primarily addresses... low asphericity", and high-frequency objects are left to future work on "the frequency response of the shearing and un-shearing operators".)*
 
-**The saturation is now reproduced from theory, in 3D, for a different reason than theirs** ([[multishear-fusion-design-solution]]). Opening an optimal design from two directions to four (adding 45° and 135°) improves the mean-error objective by **4 %**, even though the diagonals take half the time budget. The mechanism is not error averaging: one orthogonal pair already covers every blind plane, so further directions are close to redundant in the information sense too. Two independent routes to the same conclusion is about as firm as this wiki gets — direction diversity is a bounded, one-orthogonal-pair effect, and magnitude diversity is where the information is.
+**The saturation is now reproduced from theory, in 3D, for a different reason than theirs** ([[multishear-fusion-design-solution]]). Opening an optimal design from two directions to four (adding 45° and 135°) improves the mean-error objective by **4 %**, even though the diagonals take half the time budget. The mechanism is not error averaging: one orthogonal pair already covers every blind plane, so further directions are close to redundant in the information sense too. Both routes lead to the same conclusion: beyond one orthogonal pair, extra directions add little, and the remaining gain comes from shear magnitude.
 
 ## The transfer nulls have 2D prior art — now confirmed
 
@@ -89,7 +89,7 @@ GODT already needs 5 phase-shifted frames per illumination angle across ~180 ang
 
 The last point is the one that bites a *tomographic* multi-shear scheme hardest: [[finite-shear-null-experiment]]'s null positions $K = 2\pi m/\Delta$ move with $\Delta$, so a spatially varying shear smears the null comb across the field rather than placing it at known frequencies. Whether that smearing helps (nulls average out) or hurts (no clean inverse filter anywhere) is unexamined and is a cheap thing to simulate in `lab/`.
 
-**The carrier-frequency row was too strongly stated — corrected 2026-07-19 by [[2605-04297-double-sagnac-ls-qpm]].** That paper runs single-shot Fourier-transform demodulation on a *two-carrier mesh* interferogram encoding both orthogonal shear directions, under low spatial coherence, and still reaches 11.7/13.3 mrad spatial sensitivity. The binding requirement for dense carrier fringes is **temporal** coherence, not spatial: the two interfering beams are sheared copies of the same field and so are mutually coherent whatever the source's spatial coherence, as long as shear stays inside the transverse coherence length. Their [[pseudo-thermal-illumination|pseudo-thermal source]] (laser + rotating diffuser) lowers spatial coherence only, keeping speckle suppression *and* fringe density.
+**The carrier-frequency row was too strongly stated (corrected after reading [[2605-04297-double-sagnac-ls-qpm]]).** That paper runs single-shot Fourier-transform demodulation on a *two-carrier mesh* interferogram encoding both orthogonal shear directions, under low spatial coherence, and still reaches 11.7/13.3 mrad spatial sensitivity. The binding requirement for dense carrier fringes is **temporal** coherence, not spatial: the two interfering beams are sheared copies of the same field, so their fringe visibility is the source's degree of coherence at the shear distance, $|\mu(\Delta)|$, which stays high while the shear is inside the transverse coherence length. Their [[pseudo-thermal-illumination|pseudo-thermal source]] (laser + rotating diffuser) lowers spatial coherence only, keeping speckle suppression *and* fringe density.
 
 So the route is closed for GODT's broadband LED specifically, and available with a source swap. Two things stop this from being a free win, both on [[pseudo-thermal-illumination]]: a quasi-monochromatic source forfeits the transfer-function flattening [[ledwig-robles2023]] attributes to broadband illumination, and the separate obstacle that FT demodulation breaks down under high-NA *conical tomographic* illumination ([[common-path-shearing-interferometry]]) is untouched by the source change — [[2605-04297-double-sagnac-ls-qpm]] never meets it because it illuminates on-axis. Single-shot multi-shear *tomography* therefore is not unlocked simply by adopting this source.
 
@@ -99,7 +99,7 @@ Two further single-shot routes exist that reduce per-shear cost without addressi
 
 [[nguyen2025-deep-learning-lsi]] establishes that two shear directions can be built from **polarization gratings** — the same component family GODT uses — by adding a second PG + flat-mirror arm. Its modules work in double-pass reflection, whereas GODT's PG1/PG2 pair is transmissive; whether two transmissive PG pairs at different orientations can cascade without the first corrupting the second is unexamined.
 
-**Cascading two shearing stages does work — demonstrated 2026-07-19 by [[2605-04297-double-sagnac-ls-qpm]].** Not with polarization gratings, but with two Sagnac interferometers (polarizing beam splitter + two mirrors each) in series at orthogonal orientations, retrofitted to a bright-field microscope's output port. The enabling trick is a **45° polarizer between the stages**: stage 1 emits two orthogonally polarized $x$-sheared copies, the polarizer projects them onto a common state so they can interfere *and* so stage 2's PBS sees a 45° input it can split afresh. That resets the polarization basis and is what stops the first stage from consuming the degree of freedom the second one needs. Mirror tilt in each stage sets that stage's shear independently.
+**Cascading two shearing stages does work, as [[2605-04297-double-sagnac-ls-qpm]] demonstrates.** Not with polarization gratings, but with two Sagnac interferometers (polarizing beam splitter + two mirrors each) in series at orthogonal orientations, retrofitted to a bright-field microscope's output port. The enabling trick is a **45° polarizer between the stages**: stage 1 emits two orthogonally polarized $x$-sheared copies, the polarizer projects them onto a common state so they can interfere *and* so stage 2's PBS sees a 45° input it can split afresh. That resets the polarization basis and is what stops the first stage from consuming the degree of freedom the second one needs. Mirror tilt in each stage sets that stage's shear independently.
 
 Two limits on how far this transfers. The architecture is **polarization-multiplexed and therefore two-stage-limited** — each stage consumes the polarization basis and hands it on exactly once, so a third orthogonal shear direction would need a different multiplexing axis. And a serial cascade may also produce diagonal cross-terms in the spectrum, at $(\pm d_1/2, \pm d_2/2)$ (*inference*, see that page's Raises).
 

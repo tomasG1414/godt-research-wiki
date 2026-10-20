@@ -2,7 +2,7 @@
 type: note
 projects: [godt]
 created: 2026-09-25
-updated: 2026-09-25
+updated: 2026-10-20
 status: current
 ---
 
@@ -99,7 +99,7 @@ The instrument measures the phase $\phi_s=\operatorname{Im}\psi_s$, not the comp
 $\psi_s$. Because $\phi_s$ is real,
 $\hat\phi_s(\boldsymbol\kappa)=[\hat\psi_s(\boldsymbol\kappa)-\hat\psi_s^*(-\boldsymbol\kappa)]/2i$,
 which couples $\hat O(\mathbf K)$ on cap $i$ to $\hat O^*$ at the mirrored point
-$\mathbf K'$ of the same cap ($\mathbf K'_\perp=-\mathbf K_\perp$, same $k_z$). The whole
+$\mathbf K'$ of the same cap ($\mathbf K'_\perp=-\mathbf K_\perp$, with $k'_z=\sqrt{k_m^2-|\mathbf k_{i\perp}-\boldsymbol\kappa|^2}$, which equals $k_z$ only when $\boldsymbol\kappa\perp\mathbf k_{i\perp}$, e.g. at normal incidence). The whole
 design study takes A2: model $\hat\phi_s$ as if it were $\hat\psi_s$, one complex
 observation of $\hat O(\mathbf K)$ per cap point. Relaxing A2 turns every scalar below
 into a $2\times2$ block on $\{\mathbf K,\mathbf K'\}$ (E5 of the problem note). For the
@@ -140,9 +140,11 @@ three are Fourier multipliers in $\boldsymbol\kappa$, and multipliers commute. H
 - It does not matter optically where the shear is applied, as long as that plane is
   conjugate to the detector. This is exact for the linearised model *(inference)*.
 - **It survives multiple scattering in geometry.** Whatever the true scattered phase is,
-  the shear multiplies *its* spectrum by $G_j$. The nulls $G_j=0$ are therefore a
-  property of the instrument, not of the scattering model. [[multiple-scattering-check]]
-  confirmed this numerically to 4e-16.
+  the shear multiplies the spectrum of the measured Rytov field by $G_j$ (the operation is
+  linear in the phase, bilinear in the field). The nulls $G_j=0$ are therefore a property
+  of the instrument, not of the scattering model, for monochromatic light, a uniform shear
+  and no wrapping of the phase difference. [[multiple-scattering-check]] confirms the
+  implementation to 4e-16.
 
 ### 2.3 The dimensionless normalisation
 
@@ -290,7 +292,7 @@ perpendicular to $\boldsymbol\Delta_j$, at spacing $2\pi/|\boldsymbol\Delta_j|$:
 - $m=0$, the **blind plane** $\mathbf K_\perp\cdot\boldsymbol\Delta_j=0$. It exists for every
   magnitude and meets the sampled support in a set of positive area. No choice of
   $|\boldsymbol\Delta_j|$ removes it.
-- $m\neq0$, the **null comb**, known in 2D as the Servín null structure ([[servin2007]]).
+- $m\neq0$, the **null comb**, the well-known zeros of the lateral-shear transfer function ([[servin2007]] and references therein; Elster & Weingärtner 1999).
   It enters the band iff $2\pi/|\boldsymbol\Delta_j|<K_{\max}$.
 - Near the blind plane $|G_j|^2\approx(\boldsymbol\Delta_j\cdot\mathbf K_\perp)^2$. A small
   shear has a *wide* low-information slab $|K_\parallel|\lesssim1/|\boldsymbol\Delta_j|$.
@@ -314,11 +316,13 @@ $t_j|\mu_j|>0$.
   incommensurate has no common null in the band apart from the empty axis, so $J>0$ on
   the whole support. That is the condition for BLUE to exist (§6).
 
-**The single-shear design rule, stated correctly.** For one channel, information across
-the band grows with $|\boldsymbol\Delta|$: the blind slab narrows and $|G|^2$ rises
-towards its peak at $\boldsymbol\Delta\cdot\mathbf K_\perp=\pi$. It keeps growing until the
-first comb plane $2\pi/|\boldsymbol\Delta|$ enters the band. The optimum therefore sits
-*at* the boundary, $|\boldsymbol\Delta|\approx2\pi/K_{\max}$, not anywhere below it. The
+**The single-shear design rule, stated correctly.** For one channel, low-$|K|$ information
+grows with $|\boldsymbol\Delta|$: the blind slab narrows and $|G|^2$ rises towards its peak
+at $\boldsymbol\Delta\cdot\mathbf K_\perp=\pi$. For $K_\parallel>\pi/|\boldsymbol\Delta|$, though,
+$|G|^2$ falls as $|\boldsymbol\Delta|$ grows, so this argument alone does not fix the optimum.
+Numerically, for this objective, $\rho=100$, a flat prior, unit visibility and assumption
+A4, the optimum sits *at* the boundary before the first comb plane $2\pi/|\boldsymbol\Delta|$
+enters the band, $|\boldsymbol\Delta|\approx2\pi/K_{\max}$, not anywhere below it. The
 solution note's headline originally wrote this as "$\Delta\lesssim2\pi/K_{\max}$". That wording is
 too loose: its own §3 shows 0.1 μm, which satisfies the inequality, doing *worse* than
 0.33 μm, which violates it. The rule is "as large as possible without admitting the
@@ -477,7 +481,7 @@ Two approximations are hidden here.
 ### 8.2 Chromatic shear (E2)
 
 A polarization-grating pair of period $\Gamma$ and separation $L$ shears by
-$\Delta=L\tan\theta_\lambda$ with $\sin\theta_\lambda=\lambda/\Gamma$. For small angles
+$\Delta=2L\tan\theta_\lambda/|M|$ in the sample plane (magnification $M$) with $\sin\theta_\lambda=\lambda/\Gamma$. For small angles
 $\Delta(\lambda)\approx\Delta_0\lambda/\lambda_0$, so the fractional shear spread equals the
 fractional bandwidth $\varepsilon=(\lambda-\lambda_0)/\lambda_0$, of rms $\sigma_\varepsilon$. For a
 Gaussian with 35 nm FWHM at 530 nm, $\sigma_\varepsilon=0.0280$. [[s42005-025-02416-3]] gives

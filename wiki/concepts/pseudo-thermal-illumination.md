@@ -2,7 +2,7 @@
 type: concept
 projects: [godt]
 created: 2026-07-19
-updated: 2026-07-19
+updated: 2026-10-20
 status: current
 ---
 
@@ -23,7 +23,7 @@ Already noted in passing on [[quantitative-phase-imaging]] as one of the two sta
 
 ## Why this matters for multi-shear
 
-[[multi-shear-acquisition]] listed carrier-frequency multiplexing (the QWLSI-style route to encoding several shear channels in one frame) as **closed for GODT**, on the grounds that it requires spatial coherence which GODT's LED does not provide. [[2605-04297-double-sagnac-ls-qpm]] shows that framing was too coarse. What dense carrier fringes actually require is sufficient *temporal* coherence; low spatial coherence is compatible with — and in a common-path shearing geometry positively good for — carrier-based demodulation, because the two interfering beams are sheared copies of the *same* field and are therefore mutually coherent regardless of the source's spatial coherence, provided the shear stays within the illumination's transverse coherence length.
+[[multi-shear-acquisition]] listed carrier-frequency multiplexing (the QWLSI-style route to encoding several shear channels in one frame) as **closed for GODT**, on the grounds that it requires spatial coherence which GODT's LED does not provide. [[2605-04297-double-sagnac-ls-qpm]] shows that framing was too coarse. What dense carrier fringes actually require is sufficient *temporal* coherence; low spatial coherence is compatible with — and in a common-path shearing geometry positively good for — carrier-based demodulation, because the two interfering beams are sheared copies of the *same* field: their fringe visibility is the degree of coherence at the shear distance, $|\mu(\Delta)|$, which stays high while the shear is within the illumination's transverse coherence length.
 
 So the route is not closed. It is closed *for an LED* and open for a pseudo-thermal source, at the cost of swapping GODT's illumination. Whether that swap is free is the open part — see below.
 

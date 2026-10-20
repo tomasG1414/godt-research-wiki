@@ -2,7 +2,7 @@
 type: note
 projects: [godt]
 created: 2026-09-22
-updated: 2026-09-22
+updated: 2026-10-20
 status: current
 ---
 
@@ -23,11 +23,13 @@ source enters except [[s42005-025-02416-3]]'s optical parameters.
 
 ## Headline
 
-1. **The transfer nulls are exactly preserved — this is a theorem, not a
-   measurement.** Shearing acts on the measured field *after* all propagation, so
+1. **The transfer nulls are exactly preserved.** This follows from linearity: shearing
+   acts on the measured Rytov field *after* all propagation, so
    $\mathcal F[u_R(\mathbf r+\boldsymbol\Delta)-u_R(\mathbf r)]=G(\mathbf K_\perp)\,\mathcal F[u_R]$
-   is an identity whatever $u_R$'s relation to $\tilde O$. Confirmed at **4.2×10⁻¹⁶**
-   on WPM data at full contrast. Multiple scattering cannot put signal where $G=0$.
+   is an identity whatever $u_R$'s relation to $\tilde O$. The **4.2×10⁻¹⁶** check on WPM
+   data at full contrast confirms the implementation (on a periodic grid it is the DFT
+   shift theorem). Multiple scattering cannot put signal where $G=0$, for monochromatic
+   light, a uniform shear and an unwrapped phase difference.
 2. **So the *geometry* of the design study is untouched and the *accuracy* is not.**
    Which frequencies are estimable, where the comb sits, why incommensurate
    magnitudes fill it, the rule $\Delta\approx2\pi/K_{\max}$ — all survive exactly.
@@ -103,14 +105,15 @@ angular-starvation finding, here paid by every model equally.)*
 
 ## 2. The nulls are exactly preserved (T1′)
 
-This is the load-bearing result and it is structural. The shear difference is a
-*transverse linear operation on the measured field*. Whatever nonlinear path the
-light took to reach the detector, the measurement is $u_R$, and
+This result is structural. The shear difference is a *transverse linear operation on
+the measured Rytov field* $u_R=\ln(u/u_i)$; in the field $u$ itself the interferogram is
+bilinear. Whatever nonlinear path the light took to reach the detector, the measurement
+is $u_R$, and
 
 $$\mathcal F\big[u_R(\mathbf r+\boldsymbol\Delta)-u_R(\mathbf r)\big](\mathbf K_\perp)
 =\big(e^{i\mathbf K_\perp\cdot\boldsymbol\Delta}-1\big)\,\mathcal F[u_R](\mathbf K_\perp).$$
 
-Checked on the WPM field at contrast 1, against the digital shear:
+Checked on the WPM field at contrast 1, against the digital shear. With whole-pixel shears on a periodic grid this is the DFT shift theorem, so it confirms the implementation rather than the physics:
 
 | shear | in-band nulls | $\max\lvert\mathcal F[\text{sheared}]-G\,\mathcal F[u_R]\rvert/\max\lvert\mathcal F[u_R]\rvert$ | $\lvert$data$\rvert$ on the null columns |
 |---|---|---|---|
@@ -124,8 +127,11 @@ $\mathbf K_\perp\!\cdot\!\boldsymbol\Delta=0$, the 83.6 / 16.4 split of the lost
 volume, the incommensurate-ratio rule, and the separation
 $J=\rho\,S_{\mathbf t}\,M$ — because $S_{\mathbf t}$ is built from $G$ alone and $M$
 from the cap geometry alone, and multiple scattering changes neither. It changes
-$\tilde O\mapsto\tilde O+\text{bias}$. Estimability is a property of the design;
-accuracy is not.
+$\tilde O\mapsto\tilde O+\text{bias}$. For a linear, first-order reconstruction,
+estimability is a property of the design and accuracy is not. The scope is monochromatic
+light, a uniform shear, no wrapping of the phase difference and a periodic or unbounded
+field of view; a nonlinear inverse could in principle draw weak information about the
+null planes from data off them.
 
 ## 3. WPM vs. first Born (provisional)
 

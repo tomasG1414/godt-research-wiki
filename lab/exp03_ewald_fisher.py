@@ -59,6 +59,19 @@ DESIGNS = [
                                             ((0.8, Y), 1), ((0.55, Y), 1)]),
 ]
 
+# Plain-language labels for the README figure (the printed table keeps the short ones).
+FIG_LABELS = {
+    "ODT (|G|^2 = 1, benchmark)": "ODT, no shear (reference)",
+    "0.1 x  (GODT sim shear)": "0.1 µm along x (paper's simulations)",
+    "0.33 x (preprint exp)": "0.33 µm along x (preprint's shear)",
+    "0.8 x  (published exp)": "0.8 µm along x (published shear)",
+    "0.8 x + 0.4 x  (ratio 2)": "0.8 + 0.4 µm along x (ratio 2)",
+    "0.8 x + 0.55 x": "0.8 + 0.55 µm along x",
+    "0.8 x + 0.08 x": "0.8 + 0.08 µm along x",
+    "0.8 x + 0.8 y": "0.8 µm along x and along y",
+    "{0.8, 0.55} x + {0.8, 0.55} y": "0.8 + 0.55 µm along x and along y",
+}
+
 
 def shear_power(grid, items):
     if items is None:
@@ -276,17 +289,22 @@ def main():
     fig.tight_layout()
     fig.savefig(out_path("ewald_maps.png"), dpi=110)
 
-    fig2, ax2 = plt.subplots(1, 2, figsize=(13, 4.4))
+    # README figure: one panel, large type, so it stays legible at phone width
     labels = [l for l, _ in DESIGNS]
-    ax2[0].barh(labels, [results[l][1] for l in labels], color="C0")
-    ax2[0].set(xlabel="mean relative Wiener MSE over the support", title="(P-A) objective")
-    ax2[1].barh(labels, [results[l][2] for l in labels], color="C3")
-    ax2[1].set(xlabel="% of support with relative MSE > 0.25", title="lost volume")
-    for a in ax2:
-        a.invert_yaxis()
-        a.grid(alpha=.3, axis="x")
-    fig2.tight_layout()
-    fig2.savefig(out_path("lost_volume.png"), dpi=110)
+    lost = [results[l][2] for l in labels]
+    with plt.rc_context({"font.size": 13}):
+        fig2, ax2 = plt.subplots(figsize=(8.6, 5.4))
+        ax2.barh([FIG_LABELS[l] for l in labels], lost, color="C3")
+        for i, v in enumerate(lost):
+            ax2.text(v + 0.04, i, f"{v:.2f} %", va="center", fontsize=12)
+        ax2.set_xlim(0, 1.18 * max(lost))
+        ax2.set_xlabel("% of the measurable 3D frequencies lost (relative MSE > 0.25)")
+        ax2.set_title("Simulation: same total light, 20 dB, GODT simulation optics",
+                      fontsize=13)
+        ax2.invert_yaxis()
+        ax2.grid(alpha=.3, axis="x")
+        fig2.tight_layout()
+        fig2.savefig(out_path("lost_volume.png"), dpi=150)
     print()
     print(f"  wrote {out_path('ewald_maps.png')}")
     print(f"  wrote {out_path('lost_volume.png')}")
