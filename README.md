@@ -162,4 +162,5 @@ authors. See [`CITATION.cff`](CITATION.cff), and please also cite the original G
 J. Winnik *et al.*, *Communications Physics* **8**, 510 (2025).
 
 ---
-Tomás Gantes Montero · third-year physics undergraduate, Universidad Europea de Valencia
+Tomás Gantes Montero · third-year physics undergraduate, Universidad Europea de Valencia ·
+[tomas.gantes@gmail.com](mailto:tomas.gantes@gmail.com)
