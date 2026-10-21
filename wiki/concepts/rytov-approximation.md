@@ -45,7 +45,7 @@ So GODT does not need an unwrapping step at all: violations stay on the offendin
 | 0.46 | 0.330 | 1.077 |
 | 0.92 | 1.045 | 4.724 |
 
-Two things worth carrying. The error is **about 3× worse at the band edge** than at low frequency (4.7× at the highest contrast), so multiple scattering damages precisely the high transverse frequencies a multi-shear design exists to recover. And at [[chen1998]]'s bound $a\,\delta n=0.24\lambda$ the resulting *reconstruction* error is 0.288, against chen1998's stated ~25 %. The geometry and the metric differ, so this is consistency in magnitude rather than a precise cross-check.
+Two things worth carrying. The error is **about 3× worse at the band edge** than at low frequency (4.7× at the highest contrast, against the $|K|<10$ error of 1.010 in [[multiple-scattering-check]] §4), so multiple scattering damages precisely the high transverse frequencies a multi-shear design exists to recover. And at [[chen1998]]'s bound $a\,\delta n=0.24\lambda$ the resulting *reconstruction* error is 0.288, against chen1998's stated ~25 %. The geometry and the metric differ, so this is consistency in magnitude rather than a precise cross-check.
 
 ## Relevance
 

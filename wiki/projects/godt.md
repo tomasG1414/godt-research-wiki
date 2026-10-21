@@ -36,7 +36,7 @@ The gradient *measurement* is shared with the whole [[gradient-phase-imaging]] f
 See [[multi-shear-acquisition]] for the full picture. There are two reasons.
 
 1. **Directional contrast.** A single shear sees index variation along one direction only ([[kandel2019]]; [[mehta-sheppard2008]] shows the transfer perpendicular to the shear is brightfield). Measured gains from extra directions saturate quickly, at about one orthogonal pair ([[zhu2024-appl-phys-b]], [[zhu2024-sensors]], [[zhu2025-sci-rep]]). Combining shear orientations is also the future work the GODT paper names.
-2. **Transfer nulls.** The finite-shear factor vanishes at $K=2\pi m/\Delta$. The null comb, and filling it with a second shear in a coprime ratio, are known in 2D lateral-shearing interferometry ([[servin2007]], [[mehta-sheppard2008]]; Elster & Weingärtner 1999, reviewed in Tomioka et al. 2023, arXiv:2309.16434). This project quantifies the comb in the 3D Ewald setting ([[finite-shear-null-experiment]]). In 3D a second shear direction already covers most of the first direction's null planes, and a second, incommensurate magnitude removes what both directions miss ([[multishear-fusion-design-solution]] §3). The null frequencies carry no data at any SNR, so this is recovery of missing information rather than noise averaging.
+2. **Transfer nulls.** The finite-shear factor vanishes at $K=2\pi m/\Delta$. The null comb, and filling it with a second shear in a coprime ratio, are known in 2D lateral-shearing interferometry ([[servin2007]], [[mehta-sheppard2008]]; Elster & Weingärtner 1999, summarised in Tomioka et al. 2023, arXiv:2309.16434). This project quantifies the comb in the 3D Ewald setting ([[finite-shear-null-experiment]]). In 3D a second shear direction already covers most of the first direction's null planes, and a second, incommensurate magnitude removes what both directions miss ([[multishear-fusion-design-solution]] §3). The null frequencies carry no data at any SNR, so this is recovery of missing information rather than noise averaging.
 
 Acquisition hardware for two shear directions already exists in several forms ([[nguyen2025-deep-learning-lsi]], [[sciadv-adl0501]], [[2605-04297-double-sagnac-ls-qpm]]), and colour can act as a shear magnitude ([[colour-multiplexed-shear]]). The question studied here is the reconstruction side: how to fuse shear channels in $\tilde O$-space, and how to choose them.
 
@@ -46,7 +46,7 @@ Code lives in [`lab/`](../../lab/README.md). The results below come from determi
 
 ### Step 1: transfer nulls ([[finite-shear-null-experiment]])
 
-At 0.8 μm shear, three nulls fall inside the measurable band and cost 3.56 % of it along the shear axis. At 0.1 μm there are none. Two design rules follow: avoid commensurate magnitude ratios, and treat magnitudes and directions as fixes for different defects.
+At 0.8 μm shear, three nulls fall inside the measurable band and cost 3.56 % of it along the shear axis. At 0.1 μm there are none. Two design rules follow: avoid commensurate magnitude ratios, and use both kinds of diversity, since a second direction covers the blind plane and most of the null planes and a second magnitude removes what both directions miss.
 
 ### Step 2: fusion and optimal design in 3D
 
@@ -56,7 +56,7 @@ Notes: [[multishear-fusion-design-problem]], [[multishear-fusion-design-solution
 2. Transmission ODT never samples the $K_z$ axis, so the fact that in-plane shears cannot see it costs nothing extra. What a single shear does lose is its blind *plane*, 0.50 % of the support, and a second shear direction recovers it.
 3. At 0.8 μm the lost volume is 3.02 %: 83.6 % on the null planes and 16.4 % on the blind plane. A second direction at the same magnitude cuts it to 0.09 %, a second magnitude along the same direction to 0.50 %, and both together to 0.00 %. A larger shear narrows the blind slab but lets nulls into the band, so single-shear quality is not monotone in $\Delta$.
 4. The best single shear is $\Delta\approx2\pi/K_{\max}=\lambda/(\mathrm{NA_{det}}+\mathrm{NA_{ill}})$ (0.20 μm for the simulation optics), the largest shear that keeps the null comb out of the band and roughly the lateral resolution limit. This assumes coherent, monochromatic light; partial coherence pulls the optimum to smaller shears.
-5. In the linear model and at equal photon budget, weighting each frequency by its information gives 21× lower error than equal-weight averaging of the reconstructions. Fusion is the same as precision-weighted averaging, so the estimator is standard; the 21× measures what the per-frequency weights are worth against plain averaging.
+5. In the linear model and at equal photon budget, weighting each frequency by its information gives 21× lower error (textured cell phantom) than equal-weight averaging of the reconstructions. Fusion is the same as precision-weighted averaging, so the estimator is standard; the 21× measures what the per-frequency weights are worth against plain averaging.
 6. Calibration may limit the high frequencies. With an assumed 10 nm rms random shear error, the band-edge SNR ceiling is about 20 dB below the photon limit. A broadband LED already partly fills the higher-order nulls.
 
 ### Colour as a shear channel ([[colour-multiplexed-shear]])
@@ -68,7 +68,7 @@ Three LED colours act like a mechanical pair of shear magnitudes, blue + green i
 The same estimator, run on data from a [[brenner1993]] WPM forward model:
 
 1. The null planes are set by the shear, whatever the scattering. The shear difference acts linearly on the measured Rytov field after all propagation, so the data vanish on the same planes for any scattering. The 4e-16 check confirms the implementation (on a periodic grid it is the DFT shift theorem). Wrapping of the phase difference, a finite field of view, broadband (dispersive) shear and spatially varying shear all blur the nulls, and a nonlinear inverse could in principle recover weak information there.
-2. The margins shrink with contrast. Fusion beats averaging by 9.6× under the ideal linear model, 1.8× with realistic gridding and 1.1× with multiple scattering at [[chen1998]]'s validity bound. Over the same steps, the best design's advantage over a single 0.8 μm shear goes from 14.3× to 2.5× and 1.3×.
+2. The margins shrink with contrast. Fusion beats averaging by 9.6× under the ideal linear model (on that note's cell phantom), 1.8× with realistic gridding and 1.1× with multiple scattering at [[chen1998]]'s validity bound. Over the same steps, the best design's advantage over a single 0.8 μm shear goes from 14.3× to 2.5× and 1.3×.
 3. Gridding matters. Moving from binned to continuum $K_z$ data with the real pupil costs a factor 6.2 under nearest-neighbour deposition, the largest correctable error in the pipeline ([[pan1983]]); a bilinear ablation will separate gridding from pupil effects.
 4. WPM vs. first Born (provisional). Multi-slice WPM takes the obliquity factor at the incident ray; on thick volumes this implementation shows a larger residual that may partly be a simulation-window effect and needs a wider-window re-run. The multiple-scattering margins above inherit this.
 5. Shear data never form the absolute phase, so they avoid the global unwrapping step whose failures end first-Rytov ODT's range in [[chen1998]]. They do not avoid the Rytov linearisation, and the shear difference has its own wrap limit (2.2 % of pixels at 0.8 μm vs 0.45 % one-pixel residues). A comparison against properly unwrapped ODT has not been run.
@@ -78,7 +78,7 @@ The same estimator, run on data from a [[brenner1993]] WPM forward model:
 - Everything is simulated. The experiment in the paper used a 530 nm LED with 35 nm bandwidth and an NA 1.45 objective, not the simulation optics used here, and the LED's bandwidth partly fills the higher-order nulls ([[multishear-fusion-design-solution]] §3, §6).
 - The fringe-visibility model $\mu(\Delta)$ and the 10 nm shear-calibration error are assumptions, not measurements.
 - The multiple-scattering numbers rest on a WPM model whose weak-scattering limit does not yet match first Born ([[multiple-scattering-check]] §3).
-- Nearest-neighbour gridding is the largest error in the pipeline and is not fixed yet.
+- Nearest-neighbour gridding is the largest correctable error in the pipeline and is not fixed yet.
 - Validation reports RMSE on cell-like phantoms only; SSIM, axial elongation, the Shepp–Logan phantom and the nano-printed phantom are not reported.
 - Each experiment note lists the rest under "What this does not establish".
 

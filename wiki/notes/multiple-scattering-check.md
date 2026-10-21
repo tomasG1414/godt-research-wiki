@@ -61,8 +61,10 @@ source enters except [[s42005-025-02416-3]]'s optical parameters.
    benchmark collapses to RMSE 2.57 while the shear designs sit unchanged at 0.11 —
    entirely because the absolute Rytov phase reaches 4.96 rad and wraps at 5.7 % of
    pixels, and the shear difference does not. This is [[guizar-sicairos2011]]'s
-   argument demonstrated end-to-end. A comparison against *unwrapped* ODT has not been
-   run, so the 24× is an upper bound on the benefit. The other caveat: the shear
+   argument demonstrated end-to-end. That ratio (about 24×) is against a
+   baseline nobody uses: a comparison against *unwrapped* ODT has not been run, and shear
+   data still rely on the Rytov linearisation, which has failed by this contrast
+   (best-design RMSE 1.63 under model D, §5). The other caveat: the shear
    difference carries its own $|\Delta\varphi|<\pi$ limit across the shear distance,
    which grows with $\Delta$ (2.2 % of pixels at 0.8 μm, 4.2 % at 1.6 μm at that
    contrast) — it cost nothing measurable here, but it is what would bite first at

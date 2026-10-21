@@ -80,6 +80,8 @@ def test_exp03_lost_volume_in_the_readme_figure(exp03):
     assert floats(row(exp03, "0.8 x  (published exp)"))[1:3] == [0.0342, 3.02]
     assert floats(row(exp03, "0.1 x  (GODT sim shear)"))[2] == 2.54
     assert floats(row(exp03, "{0.8, 0.55} x + {0.8, 0.55} y"))[2] == 0.00
+    assert floats(row(exp03, "0.8 x + 0.8 y"))[2] == 0.09
+    assert floats(row(exp03, "0.8 x + 0.55 x"))[2] == 0.50
     assert floats(row(exp03, "an m != 0 null plane :"))[0] == 83.6
     assert floats(row(exp03, "the blind plane K_x=0:"))[0] == 16.4
     assert after(row(exp03, "field  25.6 um"), "proj:") == 76.6

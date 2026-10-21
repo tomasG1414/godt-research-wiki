@@ -304,7 +304,7 @@ def main():
         ax2.invert_yaxis()
         ax2.grid(alpha=.3, axis="x")
         fig2.tight_layout()
-        fig2.savefig(out_path("lost_volume.png"), dpi=150)
+        fig2.savefig(out_path("lost_volume.png"), dpi=150, bbox_inches="tight")
     print()
     print(f"  wrote {out_path('ewald_maps.png')}")
     print(f"  wrote {out_path('lost_volume.png')}")

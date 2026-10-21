@@ -2,7 +2,7 @@
 type: source
 projects: [godt]
 created: 2026-07-19
-updated: 2026-07-22
+updated: 2026-10-20
 status: current
 source: "https://doi.org/10.1007/s00340-024-08353-3"
 ---
@@ -39,7 +39,7 @@ Differential Zernike polynomial fitting (DZF, after Liu 2003), which avoids the 
 
 Per [[godt]] and [[multi-shear-acquisition]]:
 
-- **It settles the direction-count question quantitatively.** Together with its two companions: two orthogonal pairs are worth having, more is not. A GODT multi-shear argument resting on direction count would be arguing for a ~40 % noise-averaging gain that saturates immediately; the argument resting on **magnitude diversity filling transfer nulls** is arguing for recovery of information that is otherwise structurally absent. These are not comparable claims and should not be presented as two halves of one motivation.
+- **It settles the direction-count question quantitatively.** Together with its two companions: two orthogonal pairs are worth having, more is not. A GODT multi-shear argument resting on direction count would be arguing for a ~40 % noise-averaging gain that saturates immediately; the argument resting on **magnitude diversity filling transfer nulls** is arguing for recovery of information that is otherwise structurally absent. These are not comparable claims and should not be presented as two halves of one motivation. **[audit 2026-10-20]** Superseded in 3D: a second direction also covers most of the first direction's null planes (0.8 x + 0.8 y loses 0.09 % of the support vs 3.02 % for 0.8 x); see [[multi-shear-acquisition]].
 - **The coefficient-averaging-beats-wavefront-averaging result is a transferable design hint.** Fusing in the representation you are solving for, rather than in the measurement domain, gave 6× here. The analogue for GODT would be fusing shear channels in $\tilde O$-space rather than averaging reconstructed gradient volumes. *(inference — but it is the same structural argument, and it costs nothing to respect.)*
 - **Its stated future work is close to this project's question.** "The frequency response of the shearing and un-shearing operators" for high-frequency objects is what [[finite-shear-null-experiment]] computed for GODT's filter. It is encouraging that a metrology group considers the same question important from the 2D modal side.
 - **Confirms the modal caveat.** All three Zhu papers reconstruct smooth, low-order, Zernike-representable wavefronts. A global modal basis is insensitive to a transfer zero at a single spatial frequency, so null damage would not show up in these experiments, as the authors' own note on high-frequency objects suggests. Their saturation results therefore bound direction diversity but say nothing about magnitude diversity.

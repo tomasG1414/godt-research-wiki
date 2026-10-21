@@ -2,7 +2,7 @@
 type: source
 projects: [godt]
 created: 2026-07-19
-updated: 2026-07-22
+updated: 2026-10-20
 status: current
 source: "https://doi.org/10.1038/s41598-025-86370-8"
 ---
@@ -38,7 +38,7 @@ Jones-calculus derivation of the phase-shifting scheme (Eqs. 1–16), crystal-op
 
 Per [[godt]] and [[multi-shear-acquisition]]:
 
-- **Together with [[zhu2024-sensors]], this closes the question of what direction count alone buys.** Two independent experiments from the same group, on different optics, both find saturation. The multi-shear argument should therefore rest on **magnitude diversity** — which fills the transfer nulls quantified in [[finite-shear-null-experiment]] — and treat direction diversity as the narrower fix for the $K_x=0$ blind line, not as a second independent win. Both papers hold shear magnitude fixed and vary only direction, so neither is evidence against magnitude diversity; they simply do not test it.
+- **Together with [[zhu2024-sensors]], this closes the question of what direction count alone buys.** Two independent experiments from the same group, on different optics, both find saturation. The multi-shear argument should therefore rest on **magnitude diversity** — which fills the transfer nulls quantified in [[finite-shear-null-experiment]] — and treat direction diversity as the narrower fix for the $K_x=0$ blind line, not as a second independent win. Both papers hold shear magnitude fixed and vary only direction, so neither is evidence against magnitude diversity; they simply do not test it. **[audit 2026-10-20]** Superseded in 3D: a second direction also covers most of the first direction's null planes (0.8 x + 0.8 y loses 0.09 % of the support vs 3.02 % for 0.8 x); see [[multi-shear-acquisition]].
 - **Same caveat as its companion:** a smooth spherical wavefront fitted in 36 Zernikes cannot exhibit transfer-null damage, because a global modal basis is insensitive to a zero at one spatial frequency. The saturation result is about direction redundancy, not about nulls. *(inference)*
 - **The rotating-module design is directly transferable.** Rotating polarizer + crystal + QWP as one rigid unit, rather than rotating components individually, addresses the same problem any multi-direction polarization-grating setup faces.
 - **Alignment tolerance is a real cost.** The 3× azimuth-error amplification, and the fact that a 0.2° polarizer error is already comparable to the measurement error, sets expectations for any polarization-multiplexed multi-shear scheme — consistent with the 0.1-pixel shear-error sensitivity reported by [[2509-15382-osi-flex]]. Multi-shear is cheap in photons and expensive in calibration.

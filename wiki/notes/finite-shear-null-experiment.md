@@ -10,7 +10,7 @@ status: current
 
 Tests the inference that GODT's finite-shear transfer factor nulls a comb of spatial frequencies, and that combining shears could fill those nulls. **Result: confirmed, with two corrections to the original framing.**
 
-Everything below is computed, not sourced. The one thing taken from a source is [[s42005-025-02416-3]]'s Eq. 20; all consequences are derived here. **Note:** the forward shearing filter and its nulls are established 2D prior art — [[servin2007]] derives $2i\sin(dx\,\omega_x)\,\Phi$ (their Eq. 6), plots the inverse's poles (Fig. 2), and states the information loss explicitly — and combining shear magnitudes with a coprime ratio is also known in 2D lateral shearing (Elster & Weingärtner 1999 and follow-ups, reviewed in Tomioka et al., *Appl. Opt.* 2023, arXiv:2309.16434). What this page adds is the quantification at GODT's shear values in the tomographic setting.
+Everything below is computed, not sourced. The one thing taken from a source is [[s42005-025-02416-3]]'s Eq. 20; all consequences are derived here. **Note:** the forward shearing filter and its nulls are established 2D prior art — [[servin2007]] derives $2i\sin(dx\,\omega_x)\,\Phi$ (their Eq. 6), plots the inverse's poles (Fig. 2), and states the information loss explicitly — and combining shear magnitudes with a coprime ratio is also known in 2D lateral shearing (Elster & Weingärtner 1999 and follow-ups, summarised in Tomioka et al., *Appl. Opt.* 2023, arXiv:2309.16434). What this page adds is the quantification at GODT's shear values in the tomographic setting.
 
 ## Why this is testable without the tomographic pipeline
 
@@ -101,7 +101,7 @@ $H$ depends on $K\!\cdot\!\mathbf{d}$, so a shear along $x$ is blind wherever $K
 | **x+y, 0.8+0.55 each** | **0.505** | **0.00 %** |
 | 3 dirs (0/60/120°), 0.8 | 0.013 | 0.64 % |
 
-So **magnitudes and directions fix different things**: magnitudes fill the $m\neq0$ comb, directions address the $K_x=0$ blind line. Neither alone clears the band; together they do.
+So **directions and magnitudes complement each other**: a second direction covers the $K_x=0$ blind line and most of the first direction's nulls (12.13 % → 1.14 %), a second magnitude fills the $m\neq0$ comb along one direction (→ 1.15 %), and only both together clear the band. **[audit 2026-10-20]** An earlier reading credited directions with the blind line only; see [[multishear-fusion-design-solution]] §2–3.
 
 **The finding worth carrying forward:** no set of *in-plane* shears recovers the $K_x=K_y=0$ axis — and that axis is exactly where the [[missing-cone-problem]] already sits. The shear blind spot and the missing cone overlap, which partly defuses the shear blind spot (those frequencies were already unmeasured). Checked against the full 3D Ewald sampling in [[multishear-fusion-design-solution]] §2.
 

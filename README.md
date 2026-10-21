@@ -11,13 +11,14 @@ simulation optics. At that shear the instrument cannot see detail with a period 
 could otherwise measure are effectively lost.
 
 I then worked out how to choose and combine several shears so that, in the model, nothing is
-lost, and checked how much of the gain survives more realistic physics. Combining shears is an established remedy
-in 2D lateral-shearing interferometry (Elster & Weingärtner, 1999; review in
-[Tomioka et al., 2023](https://arxiv.org/abs/2309.16434)), and the GODT authors name combining
-shear directions as future work. What this project adds is the 3D tomographic version.
+lost, and checked how much of the gain survives more realistic physics. Combining shears is an
+established remedy in 2D lateral-shearing interferometry (Elster & Weingärtner, 1999;
+summarised in [Tomioka et al., 2023](https://arxiv.org/abs/2309.16434)), and the GODT authors
+name combining shear directions as future work. What this project adds is the 3D tomographic
+version.
 
 The repository holds a tested NumPy/SciPy simulation library, eight scripts that print the
-numbers quoted in the wiki (the headline ones are checked in CI), and notes on 27 papers.
+numbers quoted in the wiki (CI re-runs the fast ones), and notes on 27 papers.
 It is an independent project by Tomás Gantes Montero, a third-year physics undergraduate at
 Universidad Europea de Valencia, made with Claude Code as an AI coding agent
 ([how](#how-this-was-made)).
@@ -36,11 +37,12 @@ mean-squared error above 0.25), for single and combined shears at the same total
 
 1. A single 0.8 µm shear loses 3.02 % of the measurable volume: three planes of detail at
    0.8, 0.4 and 0.27 µm along the shear, plus the plane of structure that does not vary along
-   the shear at all. A second direction at the same shear (0.8 µm along x and y), which is the
-   combination the GODT authors propose, cuts the loss to 0.09 %. What remains lies where both
-   directions are blind at once, and adding a second magnitude that is not a small-integer
-   multiple of the first (0.55 µm) removes it. A pair of magnitudes along one direction only
-   gets to 0.50 %, because it still cannot see that plane.
+   the shear at all. A second direction at the same shear (0.8 µm along x and y), which is
+   what the GODT authors name as future work, cuts the loss to 0.09 %. What remains lies where
+   both directions are blind at once, and adding a second magnitude whose ratio to the first
+   is not a ratio of small integers (0.55 µm) removes it. A pair of magnitudes along one
+   direction only gets to 0.50 %, because neither magnitude sees structure that does not vary
+   along the shear.
 2. GODT's finite-shear factor multiplies the ODT spectrum point by point (Eq. 20 of the
    paper), so the information separates exactly into a shear part and a tomography part,
    `J(K) = ρ · S_t(K⊥) · M(K)`, and searching for the best design is cheap. In this model the
@@ -49,7 +51,7 @@ mean-squared error above 0.25), for single and combined shears at the same total
    coherence favours smaller shears.
 3. The channels have to be combined frequency by frequency, each weighted by its
    information. That is standard inverse-variance (joint least-squares) fusion. Averaging the
-   per-channel reconstructions instead is 10–21× worse in the linear model (two phantoms).
+   per-channel reconstructions instead is 9.6–21× worse in the linear model (two phantoms).
 4. The gains shrink as the model gets more realistic. The best design beats the published
    single shear by 14.3× in reconstruction error in the linear model, 2.5× with realistic
    (nearest-neighbour) gridding, and 1.3× once multiple scattering is included at the edge of
@@ -57,9 +59,9 @@ mean-squared error above 0.25), for single and combined shears at the same total
    weighting advantage from item 3 falls from 9.6× to 1.8× and 1.1× over the same steps. The
    multiple-scattering figures are provisional, because the wave-propagation model I use still
    disagrees with first-order Born theory by about 50 % in the weak-scattering limit.
-5. The blind planes are set by the shear, whatever the scattering. The shear difference is
-   linear in the measured Rytov field (the log of the field), so the data vanish on those
-   planes however the light was scattered. This holds for monochromatic light, a uniform and
+5. The blind planes are set by the shear alone. The shear difference is linear in the
+   measured Rytov field (the log of the field), so the data vanish on those planes however
+   the light was scattered. This holds for monochromatic light, a uniform and
    calibrated shear, and no wrapping of the phase difference, and reading the planes as lost
    object detail assumes a first-order reconstruction.
 
@@ -74,8 +76,10 @@ one place.
   optimality certificate, and a wave-propagation (multiple-scattering) forward model. Its
   selftest checks the core formulas against closed forms and brute force.
 - Eight experiment scripts (`lab/exp01`–`exp06`, `exp05b`, `exp08`), each deterministic or
-  seeded, each printing the numbers quoted in the wiki. The tests in `tests/` run the fast ones
-  and check the README's numbers against their output on every push.
+  seeded, each printing the numbers quoted in the wiki. On every push, the tests in `tests/`
+  run exp01–03 and exp05b and check the lost-volume and fusion numbers this README quotes.
+  The multiple-scattering numbers (exp06) need more memory than CI has and are not re-run
+  there.
 - Notes on 27 papers in `wiki/sources/` (28 pages, because the GODT preprint and the published
   paper have one each), linked to concept pages and to the derivations and experiment
   write-ups in `wiki/notes/`. The three notes behind the results are
@@ -102,9 +106,9 @@ of the paper summaries and wiki prose, and wrote much of the code in `lab/` to m
 specifications. [`CLAUDE.md`](CLAUDE.md) is the configuration I wrote for it, which makes it
 cite a source for every claim and mark anything else as inference.
 
-The results in the wiki come from deterministic or seeded scripts, and I re-ran all of them. The selftest checks the core formulas against closed forms and brute force. I can walk
-through any derivation or number here. The work was done between July and October 2026; this
-public copy starts from a single commit.
+The results in the wiki come from deterministic or seeded scripts, and I re-ran all of them.
+I can walk through any derivation or number here. The work was done between July and October
+2026; this public copy starts from a single commit.
 
 ## Running it
 
@@ -119,8 +123,8 @@ cd .. && pip install pytest && pytest -q    # unit tests and the README's number
 ```
 
 Figures go to `lab/out/` (gitignored, so re-run to regenerate). Rough run times on a laptop:
-exp01–02 a few seconds, exp03 ~20 s, exp08 ~30 s, exp05 ~2 min, exp04 ~4–6 min, exp06
-~20–30 min. exp06 also needs more than 6 GB of free memory.
+exp01–02 a few seconds, exp03 ~20 s, exp05b and exp08 under a minute, exp05 ~2 min, exp04
+~4–6 min, exp06 ~20–30 min. exp06 also needs more than 6 GB of free memory.
 `lab/requirements-ingest.txt` adds PyMuPDF for the PDF-to-text helper; no result depends on it.
 
 ## Layout
