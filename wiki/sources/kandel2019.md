@@ -2,9 +2,9 @@
 type: source
 projects: [godt]
 created: 2026-07-18
-updated: 2026-07-18
+updated: 2026-10-20
 status: current
-source: "Nature Communications 10, 4691 (2019)"
+source: "https://doi.org/10.1038/s41467-019-12634-3"
 ---
 
 # Epi-Illumination Gradient Light Interference Microscopy for Imaging Opaque Structures

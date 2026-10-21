@@ -2,13 +2,13 @@
 type: concept
 projects: [godt]
 created: 2026-07-18
-updated: 2026-07-19
+updated: 2026-10-20
 status: current
 ---
 
 # Gradient-Based Phase Imaging (family)
 
-Techniques that measure a spatial *derivative* of phase rather than phase itself, tracing back to Nomarski differential interference contrast (DIC) microscopy. Gradient contrast suppresses slowly-varying background, giving high SNR/contrast for subtle features, at the cost of amplifying high-frequency noise (usually kept in check by low-coherence illumination in the [[2411-08423-godt|GODT]] lineage).
+Techniques that measure a spatial *derivative* of phase rather than phase itself, tracing back to Nomarski differential interference contrast (DIC) microscopy. Gradient contrast suppresses slowly-varying background, giving high SNR/contrast for subtle features. Differentiating a phase map *numerically* amplifies high-frequency noise; an optical shear measures the phase difference directly, so it avoids that step ([[2411-08423-godt|GODT]] draws this contrast with numerical gradient operations).
 
 ## Members (as surveyed by [[2411-08423-godt]])
 

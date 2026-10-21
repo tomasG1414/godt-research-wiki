@@ -2,7 +2,7 @@
 type: note
 projects: [godt]
 created: 2026-07-18
-updated: 2026-07-22
+updated: 2026-10-20
 status: current
 ---
 
@@ -12,7 +12,7 @@ status: current
 
 ## Method (reproducible)
 
-Nine anchors resolved to OpenAlex work IDs, then everything citing them published 2024-01-01 onward was pulled and aggregated, so that works citing *multiple* anchors surface first. A second sweep pulled 2025+ output by the GODT authors directly (author IDs from the published GODT work).
+Nine anchors resolved to OpenAlex work IDs, then everything citing them published 2024-01-01 onward was pulled and aggregated, so that works citing *multiple* anchors surface first. A second, one-off OpenAlex query (not in the script) listed the GODT authors' 2025+ papers, to catch related work that does not cite the anchors yet.
 
 Re-run with `python lab/citation_sweep.py` (set `OPENALEX_MAILTO`), then `python lab/report.py multi|recent|all|<keyword>`. Results cache to `lab/out/citations.json`. Worth repeating periodically — the 2026 entries below were days old when found.
 
@@ -36,7 +36,7 @@ Anchors and their forward-citation counts since 2024:
 
 Two pages described as preprints have since been published. Both are now fixed:
 
-- **[[2509-15382-osi-flex]]** → *Journal of Physics: Photonics*, DOI `10.1088/2515-7647/ae3504`, 2026-01-07.
+- **[[2509-15382-osi-flex]]** → *Journal of Physics: Photonics*, DOI `10.1088/2515-7647/ae3504`, published 2026-01-23 (accepted 2026-01-07).
 - **[[2024-06-14-598984-polarization-hilbert-holotomography]]** → *Laser & Photonics Reviews*, DOI `10.1002/lpor.202401474`, 2025-04-13.
 
 This is the third instance in this project of a preprint having a published version with a different citation — the same pattern as the GODT preprint. Worth a habit: check for a published version before citing anything from `raw/`.
@@ -47,7 +47,7 @@ All three come from the GODT authors' wider collaboration and were invisible to 
 
 ### 1. R2D-QPI — another route to imaging confluent samples
 
-*"Doubling the field of view and eliminating the replica overlap problem in common-path shearing quantitative phase imaging"* — Rogalski, Zdańkowski, Heto, Mierzejewska, Lenarcik, Li, Sun, Zuo. *J. Phys. Photonics*, `10.1088/2515-7647/ae236c`, 2025-11-24 (arXiv 2510.01762).
+*"Doubling the field of view and eliminating the replica overlap problem in common-path shearing quantitative phase imaging"* — Rogalski, Zdańkowski, Heto, Mierzejewska, Lenarcik, Li, Sun, Zuo, Trusiak. *J. Phys. Photonics*, `10.1088/2515-7647/ae236c`, 2025-11-24 (arXiv 2510.01762).
 
 Per the abstract: common-path shearing DHM "suffer[s] from sheared object beam (replica) overlap... This limits their use to sparse objects only." R2D-QPI "numerically decouples object and replica fields of view through **controlled shear scanning**", "analytically separates overlapped phase images and effectively doubles the imaged area, **requiring only two measurements**", validated on "highly confluent samples with strong object–replica overlap."
 

@@ -1,0 +1,2 @@
+# extract_pdfs.py only (not needed to reproduce any result). PyMuPDF is AGPL-3.0.
+pymupdf>=1.24,<2

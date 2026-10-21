@@ -2,14 +2,14 @@
 type: source
 projects: [godt]
 created: 2026-07-19
-updated: 2026-07-22
+updated: 2026-10-20
 status: current
 source: "https://arxiv.org/abs/2103.09022"
 ---
 
 # Unsupervised Missing Cone Deep Learning in Optical Diffraction Tomography (ProjectionGAN)
 
-**Citation:** Hyungjin Chung*, Jaeyoung Huh*, Geon Kim, Yong Keun Park, Jong Chul Ye, arXiv:2103.09022v1 [eess.IV], 16 March 2021 (*equal contribution). KAIST.
+**Citation:** Hyungjin Chung*, Jaeyoung Huh*, Geon Kim, Yong Keun Park, Jong Chul Ye, arXiv:2103.09022v1 [eess.IV], 16 March 2021 (*equal contribution), titled "Unsupervised missing cone deep learning in optical diffraction tomography". KAIST. Published as "Missing cone artifact removal in ODT using unsupervised deep learning in the projection domain", *IEEE Transactions on Computational Imaging* 7, 747–758 (2021), doi:10.1109/TCI.2021.3098937. This page summarises arXiv v1; differences from the published version are not checked.
 
 **Gist:** Attacks the [[missing-cone-problem]] with an unsupervised CycleGAN that operates on **2D projections** rather than the 3D volume. The trick that makes it cheap: after a Gerchberg–Papoulis reconstruction, project the volume to 2D at all angles; projections at measured angles are sharp, projections at missing angles are blurry, and — absent a missing cone — both would be drawn from the same distribution. So learn the optimal-transport map between those two distributions. No matched ground truth needed, and 27 s per reconstruction against 605 s for TV. From Ye's group, the same lab as [[lim2015]].
 
@@ -36,5 +36,5 @@ Per [[godt]]: two points of context.
 
 ## Raises
 
-- Is there a published version? This is arXiv v1 (2021); given [[forward-citation-sweep-2026-07]] already caught two preprint-to-published corrections in this corpus, the citation should be checked before use.
+- Published version: yes, *IEEE Trans. Comput. Imaging* 7, 747–758 (2021). It is the third preprint-to-published correction in this corpus after the two in [[forward-citation-sweep-2026-07]]; what changed from v1 is not checked.
 - Sim, Oh, Kim, Jung & Ye, *SIAM J. Imaging Sci.* **13**(4), 2281 (2020) — the optimal-transport CycleGAN theory this rests on.

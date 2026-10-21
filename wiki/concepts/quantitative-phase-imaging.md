@@ -2,13 +2,13 @@
 type: concept
 projects: [godt]
 created: 2026-07-18
-updated: 2026-07-18
+updated: 2026-10-20
 status: current
 ---
 
 # Quantitative Phase Imaging (QPI)
 
-2D imaging contrast mode that maps the optical phase delay a transparent sample introduces (locally varying optical thickness = RI × physical thickness, convolved together and not separable in 2D). Predecessors were qualitative: Zernike phase contrast (1942) and Nomarski differential interference contrast (DIC) microscopy convert phase to visible intensity but don't yield interpretable values. QPI proper recovers actual phase-delay values, typically via [[optical-diffraction-tomography|digital holographic microscopy]] (DHM) and Fourier-transform fringe analysis.
+2D imaging contrast mode that maps the optical phase delay a transparent sample introduces (locally varying optical thickness = RI × physical thickness, convolved together and not separable in 2D). Predecessors were qualitative: Zernike phase contrast (1942) and Nomarski differential interference contrast (DIC) microscopy convert phase to visible intensity but don't yield interpretable values. QPI proper recovers actual phase-delay values, typically via digital holographic microscopy (DHM) and Fourier-transform fringe analysis.
 
 Full 3D structure (decoupling RI from thickness) requires tomographic reconstruction — see [[optical-diffraction-tomography]].
 

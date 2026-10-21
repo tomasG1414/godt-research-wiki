@@ -2,11 +2,11 @@
 type: note
 projects: [godt]
 created: 2026-09-21
-updated: 2026-10-05
+updated: 2026-10-20
 status: current
 ---
 
-# Multi-shear fusion and design: solved
+# Multi-shear fusion and design: results
 
 Answers the problem posed in [[multishear-fusion-design-problem]]. Everything here
 is **computed**, not sourced: `lab/exp03_ewald_fisher.py`, `lab/exp04_shear_design.py`,
@@ -18,7 +18,7 @@ unless a section says otherwise.
 
 > **Follow-up, 2026-09-22.** [[multiple-scattering-check]] re-ran this study's
 > design comparison against a [[brenner1993]] WPM forward model. The geometry
-> below survives exactly; the margins do not. Read §7 and §8 alongside it.
+> below survives exactly; the margins do not. Read its §5 and §7 alongside this note.
 >
 > **Audit, 2026-09-25.** The theory is now derived from the Helmholtz equation in
 > [[multishear-fusion-derivation]]. Every number below was reproduced by rerunning
@@ -121,8 +121,13 @@ measured:
 
 The second shear direction is what buys the plane back; its residual blind set (the
 axis) is free. So direction diversity has a *structural* justification in 3D, not
-only the error-averaging one the Zhu group measured — but it is worth 0.5 % of
-the support, which is the right order for the modest gains they report.
+only the error-averaging one the Zhu group measured, and the plane alone is worth
+0.5 % of the support, the right order for the modest gains they report.
+
+**[audit 2026-10-20]** The plane is not all a second direction buys. Its data also
+cover most of the first direction's null planes, because the two sets of planes only
+meet along lines: 0.8 $x$ + 0.8 $y$ loses 0.09 % against 3.02 % for 0.8 $x$ alone
+(§3). What a second *magnitude* adds on top is the residue along those lines.
 
 ## 3. What the nulls actually cost in 3D
 
@@ -226,7 +231,7 @@ null-immune and their gains are error averaging. [[zhu2024-appl-phys-b]] also re
 ### C2 (coherence-limited optimum) confirmed — and it is what creates sparsity
 
 With $|\mu(\Delta)|^2$ a van Cittert–Zernike jinc of coherence length $l_c$ (a
-**model, not measured** — see §8 and [[partially-coherent-transfer-function]]):
+**model, not measured**; see §7 and [[partially-coherent-transfer-function]]):
 
 | $l_c$ | channels in the (P-A) optimum | largest magnitude used | $f_A$ |
 |---|---|---|---|
@@ -323,7 +328,7 @@ pair, $J>0$ across the band and BLUE and Wiener agree to four digits. This is th
 estimator-side statement of why multi-shear is not merely noise averaging — it is the
 difference between an estimable and a non-estimable parameter.
 
-*The theory is right.* For a Gaussian random field drawn from the prior — where
+*The error model matches the simulation.* For a Gaussian random field drawn from the prior — where
 $(J+S_O^{-1})^{-1}$ should be exact, not approximate — empirical and predicted error
 agree to a shell-median ratio of 1.003–1.011, with 96–98 % of shells within 5 % for
 designs that leave no near-null voxels. Where a design does leave them (0.8 $x$ + 0.8
@@ -422,13 +427,13 @@ the mechanical {0.8, 0.55} μm pair of §3.
 - **A4 is doing a lot of work.** That phase-difference noise is independent of $|\Delta|$ is what lets $|G|^2\le4$ beat the ODT benchmark. It is right for a common-path shearing interferometer at fixed visibility and wrong the moment visibility enters, which is exactly what C2 shows.
 - **A6 (sequential channels).** E3 of the problem note — correlated channels under single-shot multiplexing — is not computed. It is the acquisition-side question and [[2605-04297-double-sagnac-ls-qpm]]'s cascade is the case that matters.
 - **Spatially varying shear (E6)** is untouched and remains the cheapest open item; the null planes move with $\Delta(\mathbf x)$ and the design is built on them being fixed.
-- ~~**Linear Rytov only.**~~ **Done 2026-09-22 — see [[multiple-scattering-check]].** The WPM comparison the problem note's T4 asked for now exists. Short version: the *geometry* of this note is exact under multiple scattering (the shear factor multiplies the measured field, so the nulls survive to 4e-16), the *accuracy* is not (on its phantom the fusion-beats-averaging margin falls from 9.6x (linear) to 1.1x at [[chen1998]]'s validity bound, and to nothing beyond it). And nearest-neighbour gridding (A3, below) turns out to be the single largest *correctable* error in the pipeline: a factor 6.2, against the further 2.7x multiple scattering adds at the lowest contrast tested.
+- ~~**Linear Rytov only.**~~ **Done 2026-09-22 — see [[multiple-scattering-check]].** The WPM comparison now exists. Short version: the *geometry* of this note is exact under multiple scattering (the shear factor multiplies the measured Rytov field, so the null planes stay where they are; the 4e-16 check confirms the implementation), the *accuracy* is not (on its phantom the fusion-beats-averaging margin falls from 9.6x (linear) to 1.1x at [[chen1998]]'s validity bound, and to nothing beyond it). And nearest-neighbour gridding (A3, below) turns out to be the single largest *correctable* error in the pipeline: a factor 6.2, against the further 2.7x multiple scattering adds at the lowest contrast tested.
 - **Nearest-neighbour gridding (A3).** The digital caps *are* the model, so interpolation error is assumed away in theory and simulation alike. The 76.6 % angular coverage number is the visible edge of this. **Now priced** in [[multiple-scattering-check]]: against data carrying the true continuum $K_z$, nearest-neighbour deposition costs a factor **6.2** on the best design (0.0171 -> 0.1058 RMSE), against the further 2.7x multiple scattering adds at the lowest contrast tested — exactly what [[pan1983]] warned nearest-neighbour would do.
 
 - **The 60° illumination angle is taken as measured in the medium** ($k_{\rm ill}=k_m\sin\theta$). [[s42005-025-02416-3]] says only "with respect to the optical axis" *(inference)*. $K_{\max}$ and the design rule inherit this.
 - **Rotation (E4) and phase-only coupling (E5/A2)** are not computed. A2 is argued harmless for the design ($|G|^2$ is even in $\mathbf K_\perp$; [[multishear-fusion-derivation]] §1.4), but the $2\times2$ version has not been run ([[krauze2016]]).
 - **Wrapping** is excluded by A4. [[multiple-scattering-check]] §6 gives a third, independent argument for small $\Delta$ from the wrapping limit across the shear. It reinforces the $\Delta\approx2\pi/K_{\max}$ rule and should be cited with it.
-- **Validation protocol only partly followed.** The problem note's §2.8 asked for SSIM, axial elongation, a Shepp–Logan phantom and a nano-printed phantom. Only RMSE on a textured cell is reported.
+- **Validation protocol only partly followed.** The problem note's §2.7 asked for SSIM, axial elongation, a Shepp–Logan phantom and a nano-printed phantom. Only RMSE on a textured cell is reported.
 - **Real samples.** Whether any of these margins apply to GODT's actual samples depends on their $a\,\delta n/\lambda$.
 
 ## Reproduction

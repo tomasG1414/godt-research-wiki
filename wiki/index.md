@@ -3,6 +3,9 @@
 Routing file: link + one-line summary per page, nothing more. Read this first on
 any query. Updated on every ingest.
 
+On GitHub the double-bracket names below are plain text: each one is a file of
+that name under `wiki/` (for example `wiki/notes/finite-shear-null-experiment.md`).
+
 ## Projects
 
 - [[godt]] — Gradient Optical Diffraction Tomography: core paper *Communications Physics* 8, 510 (2025); multi-shear simulation study
@@ -59,9 +62,9 @@ any query. Updated on every ingest.
 ## Notes
 
 - [[forward-citation-sweep-2026-07]] — OpenAlex forward sweep over 9 anchors: 2024-26 leads, two preprint-to-published corrections, three closely related papers from the GODT authors' collaboration
-- [[finite-shear-null-experiment]] — confirms GODT's finite shear nulls 3 in-band frequencies at the published 0.8 μm; multi-shear fills them if ratios avoid small integers
+- [[finite-shear-null-experiment]] — confirms GODT's finite shear nulls 3 in-band frequencies at the published 0.8 μm (simulated, monochromatic); multi-shear fills them if ratios avoid small integers
 - [[multishear-fusion-design-problem]] — concept glossary + precise formulation: per-voxel Fisher information under Ewald sampling, BLUE/Wiener fusion, convex optimal shear design
-- [[multishear-fusion-design-solution]] — solves it: J separates, 3.02 % true lost volume, rule Δ ≈ 2π/K_max, Õ-space fusion beats equal-weight averaging 21×, sparsity conjecture refuted (audited 2026-09-25)
+- [[multishear-fusion-design-solution]] — results: J separates, 3.02 % true lost volume (0.09 % with a second direction), rule Δ ≈ 2π/K_max, Õ-space fusion beats equal-weight averaging 21×, sparsity conjecture refuted (audited 2026-09-25, 2026-10-20)
 - [[multishear-fusion-derivation]] — the theory from Helmholtz up: Fourier diffraction theorem, separation, closed-form M(K), nulls, fusion = precision-weighted averaging, OED certificate, E1/E2
-- [[multiple-scattering-check]] — WPM re-test of the design solution: nulls survive exactly, margins shrink with contrast, gridding is a large error term, shear data need no unwrapping
+- [[multiple-scattering-check]] — WPM re-test of the design solution: null planes stay put, margins shrink with contrast, gridding is a large error term, shear data skip the unwrapping step
 - [[colour-multiplexed-shear]] — colour as a free shear channel (Δ ∝ λ): equals a mechanical shear pair, blue + green is the right pair, unnecessary at the design-rule shear; related 2D hardware in a 2026 preprint by the GODT authors' group

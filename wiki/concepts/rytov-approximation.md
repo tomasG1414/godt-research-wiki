@@ -2,7 +2,7 @@
 type: concept
 projects: [godt]
 created: 2026-07-18
-updated: 2026-07-18
+updated: 2026-10-20
 status: current
 ---
 
@@ -20,7 +20,7 @@ The first-order Born approximation instead linearizes the raw scattered field di
 
 **Quantitative validity ([[chen1998]], via cylinder simulations with exactly-known scattering)**: validity of each approximation scales with the product of object size $a$ and refractive-index difference $\delta n$, not $\delta n$ alone. Criteria for 25%-error reconstructions: first Born (plain filtered backpropagation) $a\,\delta n \le 0.08\lambda$; first Rytov (*hybrid* FBP — requires exact field backpropagation to the image center before Rytov-transforming) $a\,\delta n \le 0.24\lambda$, a **3× larger** validity range. This overturned an earlier claim (Slaney et al. 1984) that Rytov validity is size-independent. Crucially, Rytov's failure mode past its validity bound is abrupt collapse via **phase-unwrapping breakdown**, not graceful degradation like Born — extending Rytov's practical range further is a phase-unwrapping problem, not a weak-scattering-theory problem.
 
-### Why GODT escapes the phase-unwrapping bound — now measured
+### What shear data avoid: the unwrapping step, not the linearisation
 
 [[guizar-sicairos2011]] shows a phase derivative computed as $\frac{1}{h}\arg[g(x+h/2)g^*(x-h/2)]$, with $g=\exp(i\varphi)$, is inherently wrapping-insensitive — the phase lives on the unit circle, so wrap discontinuities never appear. A shearing interferometer measures exactly this construction optically (fringe phase = argument of the field times its sheared conjugate replica), so GODT never forms the absolute phase that would need unwrapping.
 
@@ -28,7 +28,7 @@ The first-order Born approximation instead linearizes the raw scattered field di
 
 **But the surviving constraint is more binding than the page previously implied.** It is $|\Delta\varphi|<\pi$ across the **shear distance**, not across a pixel, because $\arg[\cdot]$ is itself a principal value — and at GODT's published 0.8 μm shear that is the *tighter* of the two conditions. Measured: at $a\,\delta n=0.92\lambda$ the absolute phase has residues at 0.45 % of pixel pairs, while the 0.8 μm shear difference exceeds $\pi$ at 2.2 % and the 1.6 μm one at 4.2 %, roughly doubling with $\Delta$. Below $a\,\delta n\approx0.46\lambda$ neither wraps.
 
-So GODT does not need an unwrapping step at all: violations stay on the offending pixels instead of propagating through an unwrap. Against an ODT baseline *without* unwrapping this is worth 24× at high contrast; a comparison with unwrapped ODT has not been run. It is also a third independent reason to keep $\Delta$ small, alongside $\Delta\approx2\pi/K_{\max}$ from [[multishear-fusion-design-solution]]. See [[multiple-scattering-check]] §6.
+So GODT does not need an unwrapping step at all: violations stay on the offending pixels instead of propagating through an unwrap. It still relies on the Rytov linearisation, and the shear difference has its own wrap limit; a comparison with properly unwrapped ODT has not been run. It is also a third independent reason to keep $\Delta$ small, alongside $\Delta\approx2\pi/K_{\max}$ from [[multishear-fusion-design-solution]]. See [[multiple-scattering-check]] §6.
 
 ## Role in GODT
 
@@ -43,9 +43,9 @@ So GODT does not need an unwrapping step at all: violations stay on the offendin
 | 0.11 | 0.070 | 0.228 |
 | 0.23 | 0.149 | 0.481 |
 | 0.46 | 0.330 | 1.077 |
-| 0.92 | 1.045 | 1.010 |
+| 0.92 | 1.045 | 4.724 |
 
-Two things worth carrying. The error is **~3× worse at the band edge** than at low frequency throughout, so multiple scattering damages precisely the high transverse frequencies a multi-shear design exists to recover. And at [[chen1998]]'s bound $a\,\delta n=0.24\lambda$ the resulting *reconstruction* error is 0.288, against chen1998's stated ~25 % — independent geometry, independent method, same number.
+Two things worth carrying. The error is **about 3× worse at the band edge** than at low frequency (4.7× at the highest contrast, against the $|K|<10$ error of 1.010 in [[multiple-scattering-check]] §4), so multiple scattering damages precisely the high transverse frequencies a multi-shear design exists to recover. And at [[chen1998]]'s bound $a\,\delta n=0.24\lambda$ the resulting *reconstruction* error is 0.288, against chen1998's stated ~25 %. The geometry and the metric differ, so this is consistency in magnitude rather than a precise cross-check.
 
 ## Relevance
 

@@ -1,0 +1,5 @@
+# Test configuration only; the code is run as scripts from lab/ (see README.md).
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["lab"]
+markers = ["slow: runs experiment scripts end to end (~1 min)"]

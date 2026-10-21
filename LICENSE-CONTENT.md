@@ -1,9 +1,11 @@
 # Content licence
 
-The **code** in this repository (`lab/`, `tools/`) is released under the
-MIT License (see `LICENSE`).
+The **code and configuration** in this repository (the Python files in `lab/`,
+`tools/` and `tests/`, the requirements files, `pyproject.toml` and the CI workflow
+in `.github/`) are released under the MIT License (see `LICENSE`).
 
-The **written content** (`wiki/`, `README.md`, `REFERENCES.md`) is
+**Everything else** (all Markdown files, including `wiki/`, `README.md`,
+`REFERENCES.md` and `CLAUDE.md`, and the figures in `docs/`) is
 © 2026 Tomás Gantes Montero and released under the
 [Creative Commons Attribution 4.0 International licence (CC BY 4.0)](https://creativecommons.org/licenses/by/4.0/).
 

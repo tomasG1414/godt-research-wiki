@@ -2,7 +2,7 @@
 type: concept
 projects: [godt]
 created: 2026-07-18
-updated: 2026-09-21
+updated: 2026-10-20
 status: current
 ---
 
@@ -18,7 +18,7 @@ Under the first-order Born or [[rytov-approximation|Rytov approximation]] (weakl
 
 $$\tilde{u}_R(K_x,K_y) = \frac{k_0^2}{2ik_z}\tilde{O}(K_x,K_y,K_z)$$
 
-where $u_R = \ln(u/u_i)$ is the Rytov-transformed field, $(K_x,K_y)=(k_x-k_{ix},\,k_y-k_{iy})$, $K_z=k_z-k_{iz}$, and $k_z=\sqrt{k_0^2-k_x^2-k_y^2}$. Varying illumination direction sweeps the cap across different regions of $\tilde{O}$; enough diversified views fill the 3D spectrum. Once filled, inverse FFT gives $O(x,y,z)$, and RI follows from $n = n_0\sqrt{1-O}$ (or the linearized form $n \approx n_0 - \tfrac{n_0}{2}O$).
+where $u_R = \ln(u/u_i)$ is the Rytov-transformed field, $(K_x,K_y)=(k_x-k_{ix},\,k_y-k_{iy})$, $K_z=k_z-k_{iz}$, and $k_z=\sqrt{k_0^2-k_x^2-k_y^2}$, with $k_0=2\pi n_0/\lambda$ the wavenumber in the medium (the GODT paper's convention). Varying illumination direction sweeps the cap across different regions of $\tilde{O}$; enough diversified views fill the 3D spectrum. Once filled, inverse FFT gives $O(x,y,z)$, and RI follows from $n = n_0\sqrt{1-O}$ (or the linearized form $n \approx n_0 - \tfrac{n_0}{2}O$).
 
 - **Direct inversion (DI) / direct interpolation**: reposit each measured spectral cap into $\tilde{O}$ via interpolation, then inverse-FFT. [[pan1983]] compares interpolation choices: nearest-neighbor is cheapest but lowest quality (ring artifacts); **bilinear interpolation, after 8× pre-densifying the (K,φ)-plane sampling via zero-padded inverse-FFT, matches filtered-backpropagation's image quality at ~1/14th the compute cost** — the more expensive circular-sampling-theorem interpolation gives no further improvement. [[2411-08423-godt]] describes DI as most commonly realised with nearest-neighbour interpolation, the usual practical choice.
 - **Filtered backpropagation (FBP)**: space-domain analog of DI; diffractive generalization of nondiffractive filtered backprojection (CT), due to Devaney (1982). Conceptually elegant but needs ~$N^2$ FFTs (vs. ~4N for bilinear DI) for an N×N reconstruction because filtering is depth-dependent. [[pan1983]]'s overall recommendation: prefer DI (bilinear) over FBP whenever the weak-scattering approximation itself holds — algorithm choice here is a cost decision, not an accuracy one.

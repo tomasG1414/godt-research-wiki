@@ -5,9 +5,7 @@ authors:
   - family-names: "Gantes Montero"
     given-names: "Tomás"
 date-released: 2026-10-14
-license:
-  - MIT
-  - CC-BY-4.0
+repository-code: "https://github.com/tomasG1414/godt-research-wiki"
 type: software
 references:
   - type: article

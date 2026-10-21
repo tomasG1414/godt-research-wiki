@@ -36,11 +36,13 @@ N_FRAMES = 180         # exposure normalisation: photons of a 180-frame acquisit
 K_LO = 2.0             # bandpass for every aggregate metric -- see below
 RULE = "=" * 78
 
-# WHY K_LO EXISTS. |G_j|^2 = 4 sin^2(K.d/2) -> 0 as K -> 0 for EVERY shear, so
-# the |K| < K_LO shell is lost by any gradient method and its huge prior power
-# swamps every aggregate. exp02 hit exactly this and concluded the opposite of
-# the truth (lab/README.md, "Gotchas"). All aggregates below are taken on
-# supp & (|K| >= K_LO); the low-K loss is reported separately, once.
+# WHY K_LO EXISTS. The |K| < K_LO shell holds most of the phantom's power, so it
+# swamps every aggregate. It is a mask, not a physical loss: only DC is blind to
+# every shear; a single shear loses about half of the rest and a pair recovers it
+# (exp05b; multishear-fusion-design-solution.md section 5, [audit]). exp02 hit the
+# un-masked version of this and concluded the opposite of the truth (lab/README.md,
+# "Gotchas"). All aggregates below are taken on supp & (|K| >= K_LO); the shell's
+# share of the truth is reported separately, once.
 
 
 
@@ -120,10 +122,10 @@ def main():
     print(f"  median M on support {np.median(M[supp]):.1f}; per-voxel SNR at |K|=15, |G|^2 = 2: "
           f"{RHO*np.median(M[supp])*2*prof[31]/S_ref:.0f}")
     print()
-    print("  TWO LOSSES THAT NO SHEAR DESIGN TOUCHES, quoted once (relative L2 of the truth):")
+    print("  TWO SETS EXCLUDED FROM EVERY AGGREGATE, quoted once (relative L2 of the truth):")
     print(f"    missing cone (|K| outside the sampled support): "
           f"{np.linalg.norm(np.real(np.fft.ifftn(Ot*~supp)))/np.linalg.norm(O):.3f}")
-    print(f"    low-K shell |K| < {K_LO} rad/um, where |G|^2 -> 0 for every shear: "
+    print(f"    low-K shell |K| < {K_LO} rad/um (masked here; recovery in exp05b): "
           f"{np.linalg.norm(np.real(np.fft.ifftn(Ot*supp*(Kabs<K_LO))))/np.linalg.norm(O):.3f}")
     print(f"  Every aggregate below is therefore taken on supp & |K| >= {K_LO} "
           f"({meas.sum()} voxels, {100*meas.sum()/supp.sum():.1f} % of the support),")
