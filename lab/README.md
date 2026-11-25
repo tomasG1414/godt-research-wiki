@@ -34,6 +34,7 @@ titles are not ASCII). Run the tests from the repository root with `pytest -q`
 | `exp05_fusion_validation.py` | phantom validation of Wiener/BLUE/naive fusion against the predicted MSE spectrum | same |
 | `exp05b_weighted_average.py` | audit of exp05: precision-weighted averaging equals fusion; the low-K shell | same, and `multishear-fusion-derivation.md` |
 | `exp06_multiple_scattering.py` | WPM forward model vs the linear one: null preservation, WPM-vs-Born obliquity, linearisation breakdown, design ranking under five forward models, phase wrapping. Needs more than 6 GB of RAM | `wiki/notes/multiple-scattering-check.md` |
+| `exp07_spatially_varying_shear.py` | spatially varying shear Delta(x): null space (chirps), calibrated vs naive estimator, windowed null map, Monte Carlo, 2D CG demo, sample translation as diversity. ~90 s | `wiki/notes/spatially-varying-shear.md` |
 | `exp08_colour_shear.py` | wavelength as a shear channel: per-colour Ewald geometry, colour shares, dispersion, mosaic crosstalk. numpy + matplotlib only, ~30 s | `wiki/notes/colour-multiplexed-shear.md` |
 | `exp09_full_wave_referee.py` | exact Helmholtz referee (convergent Born series) vs scalar Mie; WPM's linear law on a matched window; WPM / multi-slice Born / exp06's model D against the exact nonlinear excess. ~45 min, ~6 GB | `wiki/notes/full-wave-referee.md` |
 | `exp10_exact_gridding.py` | exp06's data reconstructed with no gridding (per-column exact solve) vs nearest-voxel deposition. ~10 min, ~4 GB | `wiki/notes/gridding-and-forward-model.md` |
@@ -143,20 +144,13 @@ min, exp03 ~20 s):
 - With MSB as the forward model: 1.33x / 1.15x at 0.23 lambda, 1.09x / 1.02x at
   0.46 lambda, either estimator. exp06's verdict holds; its RMSEs were 7-24 % high.
 
-## Next: exp07, spatially varying shear
+## Next: an inverse that models multiple scattering
 
-This is the cheapest modelling item left. Everything above assumes a single scalar
-`Delta` per channel (assumption A5), and the design depends on the null planes
-sitting at fixed, known frequencies. In the double-Sagnac instrument
-(arXiv:2605.04297), `Delta` varies across the field because of tube-lens distortion.
-`exp04` §6 covers random shear error (10 nm rms already costs 20 dB at the band
-edge). A smooth spatial variation is different: it is deterministic and could be
-calibrated. It might average the nulls away or blur any inverse filter; I haven't
-checked which.
-
-Build it by making `Delta` a function of position and computing a windowed
-local-Fourier information map, then comparing against the uniform-shear design.
-Reuses `shearlib`'s `G2_vec` and cap machinery unchanged.
+~~exp07, spatially varying shear~~: done (`wiki/notes/spatially-varying-shear.md`).
+A calibrated estimator neither gains nor loses at 20 dB (the null is smeared over
+`K_m eps` but its area is conserved); ignoring the variation costs 0.21 -> 0.28 at
+a 3 % ramp; translating the sample across the shear gradient between two exposures
+is a real source of shear diversity (0.208 -> 0.124 at a 10 % ramp).
 
 ~~A second candidate, raised by `exp06`: a **Born-series / Lippmann-Schwinger**
 forward model.~~ Done in exp09 (convergent Born series as an exact referee) and
@@ -222,6 +216,14 @@ at 512^2), and a wider window or a near-to-far-field transform so that steep ray
   z-staircase, whose first Born is (1/s) sum_j e^{-i K_z j dz/s} times the
   rectangle rule, not the rectangle rule. Comparing against the wrong one briefly
   made a converging method look divergent.
+- **Interpolate at the positions the FFT assumes.** A trigonometric-interpolation
+  operator `sum_k P[k] e^{i k (x + Delta)}` must use x = i*dx, numpy's sample
+  positions, not the centred coordinates the shear field is defined on. With
+  centred x every frequency picks up (-1)^q and the operator also shifts the image
+  by half the field. exp07's first draft did this in 2D; its calibrated estimator
+  inverted the same wrong operator and looked fine, and only the naive filter
+  (error ~2.25 at every amplitude) gave it away. Check any such operator against
+  the Fourier shift for a uniform Delta.
 - **Python strings eat LaTeX.** "\times" in a normal string is a TAB plus "imes".
   Write wiki pages with an editor or a raw string.
 - Windows consoles default to cp1252. Use the `safe()` helper in `report.py`, or set

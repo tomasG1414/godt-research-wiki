@@ -2,7 +2,7 @@
 type: note
 projects: [godt]
 created: 2026-09-21
-updated: 2026-10-20
+updated: 2026-11-25
 status: current
 ---
 
@@ -170,7 +170,7 @@ Each term has the form $t/(c+dt)$, which is concave, so $J_\text{rob}$ is concav
 - **E3 Correlated channels (relax A6).** Stack $\mathbf y(\mathbf K)$; $J=\mathbf h^H\Sigma^{-1}\mathbf h$, estimator $(\mathbf h^H\Sigma^{-1}\mathbf h)^{-1}\mathbf h^H\Sigma^{-1}\mathbf y$. Compares sequential vs single-shot schemes on equal footing.
 - **E4 Sample rotation.** Rotations $R_r$: $G_{jr}(\mathbf K)=e^{i(R_r^\top\boldsymbol\Delta_j)\cdot\mathbf K}-1$ on rotated caps $R_r^\top C_i$. Rotation supplies direction diversity and fills the missing cone at once *(inference)*; gridding becomes non-Cartesian (NUFFT, iterative LS).
 - **E5 Phase-only coupling (relax A2).** $2\times2$ information matrix per $\{\mathbf K,-\mathbf K\}$ pair.
-- **E6 Spatially varying shear (relax A5 differently).** Breaks voxel-wise diagonality; local-Fourier (windowed) version of $J$. Open.
+- **E6 Spatially varying shear (relax A5 differently).** Breaks voxel-wise diagonality; local-Fourier (windowed) version of $J$. ~~Open.~~ **Done at projection level (2026-11-25)** in [[spatially-varying-shear]]: the null moves with $2\pi m/\Delta(\mathbf x)$ and its area is conserved at 20 dB.
 
 ### 2.7 Validation protocol
 

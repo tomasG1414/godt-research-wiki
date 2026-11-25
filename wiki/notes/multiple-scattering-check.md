@@ -411,7 +411,7 @@ instead of propagating through an unwrap across the field.
 - **Amplitude is kept.** GODT discards it in practice ([[krauze2016]] prices that at
   0.44 quality-index points); here $u_R$ is complex throughout.
 - **E6, spatially varying shear, is still open** and is now the cheapest remaining
-  item, as it was before.
+  item, as it was before. **[audit 2026-11-25] Done:** [[spatially-varying-shear]].
 
 ## Reproduction
 
