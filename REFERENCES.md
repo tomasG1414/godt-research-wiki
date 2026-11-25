@@ -38,3 +38,11 @@ quoted passage and want it removed, open an issue.
 - **zhu2024-sensors** — Y. Zhu, A. Tian, H. Wang, B. Liu, "Aspherical surface wavefront testing based on multi-directional orthogonal lateral shearing interferometry," *Sensors* 24(23), 7714 (2024). [doi.org/10.3390/s24237714](https://doi.org/10.3390/s24237714)
 - **zhu2025-sci-rep** — Y. Zhu, A. Tian, H. Wang, B. Liu, K. Wang, "A novel multiple directional shearing interferometry system with synchronous polarization phase shifting," *Scientific Reports* 15, 2775 (2025). [doi.org/10.1038/s41598-025-86370-8](https://doi.org/10.1038/s41598-025-86370-8)
 - **ziemczonok2019** — M. Ziemczonok, A. Kuś, P. Wasylczyk, M. Kujawińska, "3D-printed biological cell phantom for testing 3D quantitative phase imaging systems," Scientific Reports 9, 18872 (2019). [doi.org/10.1038/s41598-019-55330-4](https://doi.org/10.1038/s41598-019-55330-4)
+
+## Methods cited but not summarised
+
+Used in `lab/` and cited on concept pages, without a page in `wiki/sources/`. Each
+was checked against its abstract or arXiv text for the specific point cited.
+
+- **Osnabrugge, Leedumrongwatthanakun & Vellekoop (2016)** — G. Osnabrugge, S. Leedumrongwatthanakun, I. M. Vellekoop, "A convergent Born series for solving the inhomogeneous Helmholtz equation in arbitrarily large media," *Journal of Computational Physics* 322, 113–124 (2016). arXiv:1601.05997. [doi.org/10.1016/j.jcp.2016.06.034](https://doi.org/10.1016/j.jcp.2016.06.034). The iteration behind `shearlib.CBS` ([[convergent-born-series]]).
+- **Chen, Ren, Liu, Chowdhury & Waller (2020)** — M. Chen, D. Ren, H.-Y. Liu, S. Chowdhury, L. Waller, "Multi-layer Born multiple-scattering model for 3D phase microscopy," *Optica* 7(5), 394–403 (2020). [doi.org/10.1364/OPTICA.383030](https://doi.org/10.1364/OPTICA.383030). Related to `shearlib.MSB` ([[multi-slice-forward-models]]).

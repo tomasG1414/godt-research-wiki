@@ -2,7 +2,7 @@
 type: concept
 projects: [godt]
 created: 2026-07-18
-updated: 2026-10-20
+updated: 2026-11-25
 status: current
 ---
 
@@ -46,6 +46,8 @@ So GODT does not need an unwrapping step at all: violations stay on the offendin
 | 0.92 | 1.045 | 4.724 |
 
 Two things worth carrying. The error is **about 3× worse at the band edge** than at low frequency (4.7× at the highest contrast, against the $|K|<10$ error of 1.010 in [[multiple-scattering-check]] §4), so multiple scattering damages precisely the high transverse frequencies a multi-shear design exists to recover. And at [[chen1998]]'s bound $a\,\delta n=0.24\lambda$ the resulting *reconstruction* error is 0.288, against chen1998's stated ~25 %. The geometry and the metric differ, so this is consistency in magnitude rather than a precise cross-check.
+
+**[audit 2026-11-25]** The table measures WPM against its own linearisation on a cropped window, and an exact Helmholtz referee shows WPM's nonlinear excess has the wrong structure ([[full-wave-referee]] §3). Measured with the referee on the whole window, the exact excess at $0.23\lambda$ is 4 % of the signal overall and 37 % on near-axis rays, which carry the weak high-$|K|$ content. That confirms the band-edge concentration. With a validated forward model the reconstruction error at $0.23\lambda$ is 0.27 rather than 0.288, still consistent in magnitude with [[chen1998]] ([[gridding-and-forward-model]] §4).
 
 ## Relevance
 

@@ -26,7 +26,7 @@ titles are not ASCII). Run the tests from the repository root with `pytest -q`
 
 | file | what it does | supports |
 |---|---|---|
-| `shearlib.py` | shared maths: shear transfer factor, ODT band geometry, Wiener error, cell phantom; 3D Ewald caps, cap density (binned + closed form), convex design solvers, fusion rules; WPM multiple-scattering propagator and an exact first-Born reference. Has a selftest. | — |
+| `shearlib.py` | shared maths: shear transfer factor, ODT band geometry, Wiener error, cell phantom; 3D Ewald caps, cap density (binned + closed form), convex design solvers, fusion rules; WPM multiple-scattering propagator and an exact first-Born reference; scalar Mie series, convergent-Born-series Helmholtz solver (`CBS`), multi-slice first Born (`MSB`), full-window lattice sampling, gridding-free column estimator (`ColumnWiener`). Has a selftest. | — |
 | `exp01_shear_nulls.py` | transfer-null structure, conditioning, directions vs magnitudes | `wiki/notes/finite-shear-null-experiment.md` |
 | `exp02_shear_recovery.py` | Monte Carlo validation, per-frequency error, image demo | same |
 | `exp03_ewald_fisher.py` | 3D Fisher maps, closed-form cap density, P1, true lost volume, angular coverage | `wiki/notes/multishear-fusion-design-solution.md` |
@@ -35,6 +35,9 @@ titles are not ASCII). Run the tests from the repository root with `pytest -q`
 | `exp05b_weighted_average.py` | audit of exp05: precision-weighted averaging equals fusion; the low-K shell | same, and `multishear-fusion-derivation.md` |
 | `exp06_multiple_scattering.py` | WPM forward model vs the linear one: null preservation, WPM-vs-Born obliquity, linearisation breakdown, design ranking under five forward models, phase wrapping. Needs more than 6 GB of RAM | `wiki/notes/multiple-scattering-check.md` |
 | `exp08_colour_shear.py` | wavelength as a shear channel: per-colour Ewald geometry, colour shares, dispersion, mosaic crosstalk. numpy + matplotlib only, ~30 s | `wiki/notes/colour-multiplexed-shear.md` |
+| `exp09_full_wave_referee.py` | exact Helmholtz referee (convergent Born series) vs scalar Mie; WPM's linear law on a matched window; WPM / multi-slice Born / exp06's model D against the exact nonlinear excess. ~45 min, ~6 GB | `wiki/notes/full-wave-referee.md` |
+| `exp10_exact_gridding.py` | exp06's data reconstructed with no gridding (per-column exact solve) vs nearest-voxel deposition. ~10 min, ~4 GB | `wiki/notes/gridding-and-forward-model.md` |
+| `exp11_exact_design.py` | exp06's design comparison with both implementation errors removed: multi-slice Born on a 38.4 um window, both estimators, three contrasts; writes the README figure. ~45 min, ~6 GB | same |
 | `citation_sweep.py` | OpenAlex forward citation sweep over the project's anchors | `wiki/notes/forward-citation-sweep-2026-07.md` |
 | `report.py` | renders `out/citations.json` | same |
 | `extract_pdfs.py` | PDF → text for ingests (PyMuPDF text layer; `pip install -r lab/requirements-ingest.txt`) | ingest workflow |
@@ -95,9 +98,11 @@ min, exp03 ~20 s):
   factor at the incident ray (`1/k_iz`) where Born takes it at the scattered one
   (`1/k_z`), checked in the selftest. The larger thick-object gap (~0.67) may be
   partly a window/absorber effect and needs a wider-window re-run.
+  [Resolved by exp09: it was the window mismatch.]
 - Binned -> continuum K_z with nearest-neighbour deposition (assumption A3) costs a
   factor 6.2 on the best design, against the further 2.7x multiple scattering adds at
   the lowest contrast tested. A bilinear ablation is the next step.
+  [Done more strongly in exp10: no gridding at all; 73 % of the factor was rounding.]
 - Margins compress, and at one contrast the ordering inverts: fusion beats
   averaging 9.6x (ideal linear), 1.8x (realistic gridding), 1.1x (multiple
   scattering in) at chen1998's `0.23 lambda` bound; by `0.46 lambda` naive
@@ -118,6 +123,25 @@ min, exp03 ~20 s):
 - `J = rho S_t M` does not factorise across colours: each has its own `M_c(K)`.
 - At the design-rule shear the idea buys nothing (530 nm alone: 0.00094).
 
+`exp09` + `exp10` + `exp11`, run once each (~45 min, ~10 min, ~45 min); exp11's
+`--quick` re-run reproduces its contrast-0.5 table:
+
+- `CBS` (convergent Born series) matches the scalar Mie series for a 1.5 um sphere
+  to 0.4 % (normal) / 0.9 % (60 deg); first Born is off by 16 % / 80 %.
+- On ONE window, WPM = Born x k_z/k_iz x (slice phase) to 0.3 % at every dz, and
+  |WPM/Born| / (k_z/k_iz) = 1.000 +- 0.001 per angle bin. exp06's extra steep-ray
+  deficit was its window mismatch.
+- Measure on the whole window at the reconstruction lattice (`lattice_samples`):
+  a 12.8 um crop moves even CBS's linear part by 10 % (54 % near-axis).
+- On near-axis rays (the only ones where the referee is window-converged, 2.8 %),
+  MSB's excess is within 4 % / 10 % of the signal at a dn = 0.23 / 0.46 lambda;
+  exp06's D is off by 46 % / 85 %, more than the excess itself (36 % / 68 %).
+  At 0.92 lambda every cheap model fails.
+- `ColumnWiener` (no gridding) on exp06's B data: best design 0.1058 -> 0.0280,
+  margins 2.5x -> 8.8x (vs single 0.8) and 1.8x -> 5.9x (fusion vs averaging).
+- With MSB as the forward model: 1.33x / 1.15x at 0.23 lambda, 1.09x / 1.02x at
+  0.46 lambda, either estimator. exp06's verdict holds; its RMSEs were 7-24 % high.
+
 ## Next: exp07, spatially varying shear
 
 This is the cheapest modelling item left. Everything above assumes a single scalar
@@ -133,10 +157,19 @@ Build it by making `Delta` a function of position and computing a windowed
 local-Fourier information map, then comparing against the uniform-shear design.
 Reuses `shearlib`'s `G2_vec` and cap machinery unchanged.
 
-A second candidate, raised by `exp06`: a **Born-series / Lippmann-Schwinger**
-forward model, whose linear limit *is* first Born by construction. `exp06` had
-to splice one (model D) because WPM's linear limit is not Born, and a proper
-solver would remove that splice.
+~~A second candidate, raised by `exp06`: a **Born-series / Lippmann-Schwinger**
+forward model.~~ Done in exp09 (convergent Born series as an exact referee) and
+exp11 (multi-slice Born as the validated design-level model).
+
+What exp11 changes about priorities: at `a dn = 0.23 lambda` the reconstruction
+error is now set by multiple scattering, not by gridding or by the design, so
+the item with the largest expected payoff is an **inverse that models multiple
+scattering**: `MSB` inside the reconstruction loop, in the spirit of `ma2017`'s
+WPM-in-the-loop. `MSB` is cheap (two FFTs per slice) and its linear limit is the
+current estimator, so the existing fusion is its first iterate. Two smaller items:
+a design-level run of the exact referee on a cluster (540 solves of ~5 min each
+at 512^2), and a wider window or a near-to-far-field transform so that steep rays
+(tan theta_s > 2) can be adjudicated at all.
 
 ## Conventions
 
@@ -169,6 +202,27 @@ solver would remove that splice.
   *every* shear (that is gradient integration, which GODT deliberately avoids).
   Un-bandpassed, that effect buries the nulls and inverts the apparent ranking
   — the first attempt at `exp02` concluded the opposite of the truth.
+- **Compare forward models on ONE window.** exp06 ran WPM on a 19.2 um window with
+  an absorbing edge, cropped it to 12.8 um, and compared it with first Born on a
+  12.8 um periodic window. Steep rays walk 10-25 um sideways through a 6 um cell
+  at 60 deg, so the two windows disagreed about them, and that looked exactly like
+  a forward-model gap (the "~0.67, provisional" of exp06 section 3). On a matched
+  window WPM = Born x k_z/k_iz to 0.3 %. Even the exact solver's answer moves by
+  tens of percent under a 12.8 um crop; measure on the whole window at the
+  reconstruction lattice (`shearlib.lattice_samples`) instead. exp06 also printed
+  "absorbing edge outside |x| = 7.9 um", but `WPM` sizes the taper on the FULL
+  width, so it starts at 6.14 um, inside the 6.4 um crop.
+- **A periodic box stalls the Helmholtz solver.** Without absorption at the sides,
+  near-grazing waves and guided modes of the periodic array never reach the z
+  layers, and CBS converges only algebraically. Give `CBS` a `frame`. Where frame
+  and z layers meet, ADD them: taking the max lowers eps but left a trapped mode in
+  small boxes (1500 iterations unconverged vs ~200).
+- **Sub-slicing WPM changes the object.** Repeating each slice s times makes a
+  z-staircase, whose first Born is (1/s) sum_j e^{-i K_z j dz/s} times the
+  rectangle rule, not the rectangle rule. Comparing against the wrong one briefly
+  made a converging method look divergent.
+- **Python strings eat LaTeX.** "\times" in a normal string is a TAB plus "imes".
+  Write wiki pages with an editor or a raw string.
 - Windows consoles default to cp1252. Use the `safe()` helper in `report.py`, or set
   `PYTHONIOENCODING=utf-8`.
 - OpenAlex wants a contact address: `OPENALEX_MAILTO=you@example.com`.

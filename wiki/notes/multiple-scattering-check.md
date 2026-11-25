@@ -2,11 +2,24 @@
 type: note
 projects: [godt]
 created: 2026-09-22
-updated: 2026-10-20
-status: current
+updated: 2026-11-25
+status: disputed
 ---
 
 # Multiple scattering: what holds of the design solution
+
+> **[audit 2026-11-25] Partly superseded; original text kept below.** An exact Helmholtz
+> referee and a gridding-free estimator were added afterwards ([[full-wave-referee]],
+> [[gridding-and-forward-model]]). What changed:
+> - **§3 is resolved.** The provisional WPM–Born gap was the simulation windows (a cropped,
+>   absorbing-edge window against a periodic one) plus WPM's obliquity factor, which is
+>   exact once the windows match. Headline 5 and the §3 caveat are answered.
+> - **Headline 4's factor 6.2 was mostly the gridding**, as suspected: an exact estimator
+>   brings it to 1.64 on the same data.
+> - **Model D's construction does not hold up against the referee**, but its design-level
+>   margins at $a\,\delta n=0.23\lambda$ are confirmed in magnitude by a multi-slice Born
+>   model checked against the referee (headline 3, §5). Details in the inline [audit] notes.
+> The null-plane results (§2) and the wrapping analysis (§6) are untouched.
 
 Re-tests [[multishear-fusion-design-solution]] against a forward model it did not
 generate. That note's assumption A1 was first-order [[rytov-approximation|Rytov]];
@@ -43,12 +56,23 @@ source enters except [[s42005-025-02416-3]]'s optical parameters.
    fusion (0.6025 vs 0.6109) — which is what a common bias does, since averaging
    partly cancels it and coherent fusion adds it in phase. Past $\approx0.23\lambda$
    the error budget stops being about shear design.
+   **[audit 2026-11-25] Confirmed in magnitude, with lower absolute errors.** Re-run with
+   multi-slice first Born, a forward model checked against an exact Helmholtz solver,
+   and measured without a crop ([[gridding-and-forward-model]] §4): 1.33× and 1.15× at
+   $0.23\lambda$, 1.09× and 1.02× at $0.46\lambda$. The best design's RMSE is 0.2686, not
+   0.2882, and 0.4917, not 0.6109. Whether averaging edges ahead at $0.46\lambda$ depends on
+   the estimator (it does with the exact one, 0.96×), so read it as a tie.
 4. **Nearest-neighbour $K_z$ gridding is the largest *correctable* error in the
    pipeline.** Assumption A3 was assumed away in exp03–05; it is worth a factor
    **6.2** on the best design (0.0171 → 0.1058) before any physics changes, against
    the further ×2.7 multiple scattering adds at the lowest contrast tested
    (0.1058 → 0.2882). Multiple scattering is the bigger absolute error; gridding is
    the bigger multiplier, and unlike the physics it is free to fix.
+   **[audit 2026-11-25]** Fixed in [[gridding-and-forward-model]]: an estimator with no
+   gridding (an exact solve per $K_z$ column) takes the best design from 0.1058 to
+   0.0280 on the same data, so 73 % of the factor (in log terms) was the rounding. But
+   once multiple scattering is in, the fix buys nothing: the error then sits near 0.27
+   with either estimator.
 5. **WPM vs. first Born (provisional).** For a single slice WPM carries the obliquity
    factor of the *incident* ray, $1/k_{iz}$, where Born carries the *scattered* one,
    $1/k_z$ (a known property of multi-slice models). On a thick volume this
@@ -56,6 +80,9 @@ source enters except [[s42005-025-02416-3]]'s optical parameters.
    $\delta z\to0$. That residual may come from the simulation window: steep rays walk
    ~11 μm sideways at 60°, comparable to the 19.2 μm window and its absorber. It needs
    re-running on a wider window before being read as physics.
+   **[audit 2026-11-25] Resolved: it was the window.** With WPM and Born on one window
+   the ratio divided by $k_z/k_{iz}$ is $1.000\pm0.001$ in every angle bin, and the complex
+   law holds to 0.3 % at every step size ([[full-wave-referee]] §2).
 6. **Shear data need no unwrapping step.** Against an ODT baseline that is *not*
    unwrapped, in a purely single-scattering pipeline at $a\,\delta n=0.92\lambda$, the ODT
    benchmark collapses to RMSE 2.57 while the shear designs sit unchanged at 0.11 —
@@ -85,6 +112,12 @@ photon budget. Only the data changes, so every difference is forward-model error
 | **B′** WPM-linearised | WPM at contrast $\varepsilon$, scaled up | multi-slice propagation |
 | **C** WPM | the real thing | multiple scattering |
 | **D** Born + MS | $d_B+(d_C-d_{B'})$ | multiple scattering *only* |
+
+> **[audit 2026-11-25]** Against the exact referee, D's excess has about the right size
+> but the wrong structure: on the rays where the referee is converged, D's error (0.46 of
+> the signal at $0.23\lambda$) exceeds the excess it models (0.36) ([[full-wave-referee]]
+> §3). The tables below are kept as run; [[gridding-and-forward-model]] §4 replaces D with
+> a validated model and finds the same margins at lower absolute error.
 
 **D is what makes the question answerable.** B′ turns out to sit at an RMSE floor of
 0.635 — the multi-slice-vs-Born gap of §3 — which ruins the reconstruction before
@@ -142,6 +175,13 @@ null planes from data off them.
 > against a 19.2 μm WPM window with an absorbing edge. The single-slice obliquity
 > factor is solid (and known for multi-slice models); the rest needs a wider-window
 > re-run. Models B′, C and D below inherit this.
+>
+> **[audit 2026-11-25] Settled in [[full-wave-referee]] §2.** It was the window: Born was
+> evaluated on a 12.8 μm periodic window and WPM on a cropped 19.2 μm window with an
+> absorbing edge (which starts at 6.14 μm, not the 7.9 μm exp06 printed). On one window
+> the obliquity factor is the entire linear gap. The step-size floor below was the probe's
+> own nonlinearity: at its amplitude the steep rays are already nonlinear, and that
+> part grows as $\delta z\to0$.
 
 Measured on a **band-limited random probe** ($\delta n_{\rm rms}=4.1\times10^{-4}$,
 correlation 0.15 μm, smoothly windowed) rather than on the cell phantom, whose
@@ -356,6 +396,7 @@ instead of propagating through an unwrap across the field.
   independently by chen1998 (§4) and its *contrast scaling* is clean, but a
   Lippmann–Schwinger or convergent-Born-series forward model — whose linear limit is
   Born by construction — would settle it properly, and is a natural follow-up.
+  **[audit 2026-11-25] Done** ([[full-wave-referee]] §3, [[gridding-and-forward-model]] §4).
 - **One phantom, one geometry.** A single cell-like object at one size; $a\,\delta n$
   is swept through contrast only, so size-dependence (which is the *other* half of
   chen1998's criterion) is untested here.

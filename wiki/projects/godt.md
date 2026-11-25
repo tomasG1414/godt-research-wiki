@@ -2,7 +2,7 @@
 type: project
 projects: [godt]
 created: 2026-07-18
-updated: 2026-10-20
+updated: 2026-11-25
 status: current
 ---
 
@@ -12,9 +12,11 @@ status: current
 > Reading on GitHub? Names in double square brackets, such as [[finite-shear-null-experiment]],
 > are links between wiki pages. They work in Obsidian, and here each one is the file of that
 > name under `wiki/` (in this case [`notes/finite-shear-null-experiment.md`](../notes/finite-shear-null-experiment.md)).
-> The three notes behind the results are [blind spots](../notes/finite-shear-null-experiment.md),
-> [choosing and combining shears](../notes/multishear-fusion-design-solution.md) and
-> [realistic physics](../notes/multiple-scattering-check.md).
+> The notes behind the results are [blind spots](../notes/finite-shear-null-experiment.md),
+> [choosing and combining shears](../notes/multishear-fusion-design-solution.md),
+> [realistic physics](../notes/multiple-scattering-check.md), and its follow-ups with
+> [an exact referee](../notes/full-wave-referee.md) and
+> [no gridding](../notes/gridding-and-forward-model.md).
 
 ## Goal
 
@@ -68,25 +70,32 @@ Three LED colours act like a mechanical pair of shear magnitudes, blue + green i
 The same estimator, run on data from a [[brenner1993]] WPM forward model:
 
 1. The null planes are set by the shear, whatever the scattering. The shear difference acts linearly on the measured Rytov field after all propagation, so the data vanish on the same planes for any scattering. The 4e-16 check confirms the implementation (on a periodic grid it is the DFT shift theorem). Wrapping of the phase difference, a finite field of view, broadband (dispersive) shear and spatially varying shear all blur the nulls, and a nonlinear inverse could in principle recover weak information there.
-2. The margins shrink with contrast. Fusion beats averaging by 9.6× under the ideal linear model (on that note's cell phantom), 1.8× with realistic gridding and 1.1× with multiple scattering at [[chen1998]]'s validity bound. Over the same steps, the best design's advantage over a single 0.8 μm shear goes from 14.3× to 2.5× and 1.3×.
-3. Gridding matters. Moving from binned to continuum $K_z$ data with the real pupil costs a factor 6.2 under nearest-neighbour deposition, the largest correctable error in the pipeline ([[pan1983]]); a bilinear ablation will separate gridding from pupil effects.
-4. WPM vs. first Born (provisional). Multi-slice WPM takes the obliquity factor at the incident ray; on thick volumes this implementation shows a larger residual that may partly be a simulation-window effect and needs a wider-window re-run. The multiple-scattering margins above inherit this.
-5. Shear data never form the absolute phase, so they avoid the global unwrapping step whose failures end first-Rytov ODT's range in [[chen1998]]. They do not avoid the Rytov linearisation, and the shear difference has its own wrap limit (2.2 % of pixels at 0.8 μm vs 0.45 % one-pixel residues). A comparison against properly unwrapped ODT has not been run.
+2. The margins shrink with contrast. Fusion beats averaging by 9.6× under the ideal linear model (on that note's cell phantom), 1.8× with realistic gridding and 1.1× with multiple scattering at [[chen1998]]'s validity bound. Over the same steps, the best design's advantage over a single 0.8 μm shear goes from 14.3× to 2.5× and 1.3×. (Revisited in step 4.)
+3. Shear data never form the absolute phase, so they avoid the global unwrapping step whose failures end first-Rytov ODT's range in [[chen1998]]. They do not avoid the Rytov linearisation, and the shear difference has its own wrap limit (2.2 % of pixels at 0.8 μm vs 0.45 % one-pixel residues). A comparison against properly unwrapped ODT has not been run.
+
+### Step 4: an exact referee, and the two implementation errors removed
+
+Notes: [[full-wave-referee]] (exp09), [[gridding-and-forward-model]] (exp10, exp11). Step 3 left the forward-model gap provisional and the gridding error unfixed. Both are now settled.
+
+1. **An exact referee.** A [[convergent-born-series]] solver of the full scalar Helmholtz equation matches the exact Mie series for a 1.5 μm sphere to 0.4 % (0.9 % at 60°), where first Born is off by 16–80 %.
+2. **The WPM–Born gap was the window.** On one simulation window WPM's linear limit is first Born × $k_z/k_{iz}$ to 0.1 % in every angle bin ([[multi-slice-forward-models]]). Step 3's extra steep-angle deficit came from comparing a cropped, absorbing-edge window with a periodic one. A 12.8 μm crop moves even the exact solution's linear part by 10 % (54 % on near-axis rays).
+3. **Most of the realistic-gridding loss was the gridding.** An estimator with no Fourier-space gridding (an exact solve per $K_z$ column) takes the best design from 0.1058 to 0.0280 on continuum Born data. The margins come back to 8.8× over the single shear and 5.9× for fusion over averaging (ideal model: 14.3×, 9.6×).
+4. **Multiple scattering then sets the error.** Step 3's model D had the size of the multiple-scattering correction about right but not its structure. Multi-slice first Born reproduces the exact excess to 4–10 % of the signal up to $a\,\delta n=0.46\lambda$. With it, the margins are 1.3× and 1.1× at $0.23\lambda$ and about 1× at $0.46\lambda$, with either estimator. Step 3's verdict stands; its absolute errors were 7–24 % too high.
 
 ## Limitations
 
 - Everything is simulated. The experiment in the paper used a 530 nm LED with 35 nm bandwidth and an NA 1.45 objective, not the simulation optics used here, and the LED's bandwidth partly fills the higher-order nulls ([[multishear-fusion-design-solution]] §3, §6).
 - The fringe-visibility model $\mu(\Delta)$ and the 10 nm shear-calibration error are assumptions, not measurements.
-- The multiple-scattering numbers rest on a WPM model whose weak-scattering limit does not yet match first Born ([[multiple-scattering-check]] §3).
-- Nearest-neighbour gridding is the largest correctable error in the pipeline and is not fixed yet.
+- The multiple-scattering numbers rest on multi-slice first Born, checked against an exact solver on one illumination and only on near-axis rays; steep rays cannot be adjudicated with the windows used, and nothing is validated at $a\,\delta n=0.92\lambda$ ([[full-wave-referee]]).
+- The exact estimator is a MAP estimate under an oracle prior (the true object's shell spectrum), not a practical regularised reconstruction.
 - Validation reports RMSE on cell-like phantoms only; SSIM, axial elongation, the Shepp–Logan phantom and the nano-printed phantom are not reported.
 - Each experiment note lists the rest under "What this does not establish".
 
 ## Next technical steps
 
-- Bilinear (or NUFFT) gridding: the cheapest fix with the largest measured effect (the factor 6.2 above), and an ablation that separates gridding from pupil effects.
-- Fairer baselines and checks: an unwrapped-ODT baseline for the wrapping comparison, and a wider-window WPM run for the forward-model gap.
+- **An inverse that models multiple scattering.** Step 4 makes this the item with the largest payoff: at $a\,\delta n\approx0.25\lambda$ multiple scattering, not gridding or design, sets the error. Multi-slice Born inside the reconstruction loop ([[ma2017]]'s route with a Born-consistent model) has the current fusion estimator as its first iterate.
+- An unwrapped-ODT baseline for the wrapping comparison.
 - Spatially varying shear. Real two-direction instruments show shear varying across the field ([[2605-04297-double-sagnac-ls-qpm]]). A position-dependent $\Delta$ moves the nulls, which could average them away or blur any inverse filter.
-- A Born-series / Lippmann–Schwinger forward model, whose linear limit is first Born by construction, to remove the splice that [[multiple-scattering-check]] needed.
+- ~~Bilinear (or NUFFT) gridding~~ and ~~a Born-series forward model~~: done, step 4.
 - Partial coherence: whether the shear factor stays a simple multiplier under [[ledwig-robles2023]]'s broadband Ewald-plane treatment.
 - Real samples: placing GODT's targets (neurons, [[nano-printed-cell-phantom]]) on the $a\,\delta n/\lambda$ axis, which decides how much of the design study applies to them.

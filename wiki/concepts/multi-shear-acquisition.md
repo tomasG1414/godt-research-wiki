@@ -2,7 +2,7 @@
 type: concept
 projects: [godt]
 created: 2026-07-18
-updated: 2026-10-20
+updated: 2026-11-25
 status: current
 ---
 
@@ -126,7 +126,7 @@ The reconstruction question is what this project studies, and the corpus contain
 
 One transferable empirical hint from [[zhu2024-appl-phys-b]]: averaging *Zernike coefficients* across direction sets beat averaging *differential wavefronts* by 6× (ΔRMS 0.0001 λ vs 0.0006 λ) on identical raw data. Fuse in the representation you are solving for, not in the measurement domain — the analogue here is fusing in $\tilde O$-space rather than averaging reconstructed gradient volumes.
 
-**Demonstrated in 3D: 21× over equal-weight averaging.** On a textured cell phantom at equal photon budget, spectral (Wiener) fusion of a {0.8, 0.55} μm $x$+$y$ design reaches 0.0078 relative RMSE against **0.1607** for an equal-weight average of the four per-channel reconstructions ([[multishear-fusion-design-solution]]). A per-voxel precision-weighted average of the same reconstructions gives 0.0079: fusion *is* inverse-variance averaging in $\tilde O$-space ([[multishear-fusion-derivation]] §6.2). So the 21× measures the value of per-frequency weights, not a new estimator, and on [[multiple-scattering-check]]'s phantom the margin is 9.6× (linear) → 1.8× → 1.1× as realism is added.
+**Demonstrated in 3D: 21× over equal-weight averaging.** On a textured cell phantom at equal photon budget, spectral (Wiener) fusion of a {0.8, 0.55} μm $x$+$y$ design reaches 0.0078 relative RMSE against **0.1607** for an equal-weight average of the four per-channel reconstructions ([[multishear-fusion-design-solution]]). A per-voxel precision-weighted average of the same reconstructions gives 0.0079: fusion *is* inverse-variance averaging in $\tilde O$-space ([[multishear-fusion-derivation]] §6.2). So the 21× measures the value of per-frequency weights, not a new estimator, and on [[multiple-scattering-check]]'s phantom the margin is 9.6× (linear) → 1.8× → 1.1× as realism is added. **[audit 2026-11-25]** The 1.8× was mostly gridding error: without gridding it is 5.9×. The 1.1× under multiple scattering is confirmed with a forward model checked against an exact solver ([[gridding-and-forward-model]]).
 
 The estimator-side statement of the same fact: the prior-free BLUE **diverges** for a single shear, because it is undefined where $J=0$, and is perfectly well-conditioned for an incommensurate pair, where it agrees with Wiener to four digits. Multi-shear is the difference between an estimable and a non-estimable parameter, not a noise-averaging improvement.
 

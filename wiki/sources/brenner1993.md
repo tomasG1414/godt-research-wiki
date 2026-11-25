@@ -2,7 +2,7 @@
 type: source
 projects: [godt]
 created: 2026-07-18
-updated: 2026-09-22
+updated: 2026-11-25
 status: current
 source: "https://doi.org/10.1364/AO.32.004984"
 ---
@@ -33,31 +33,37 @@ Per [[godt]]: this is the forward-simulation engine behind [[2411-08423-godt]]'s
 
 [[ma2017]] carries WPM from pure simulation into tomographic *reconstruction*, using it as a nonlinear forward operator inside a FISTA optimization loop (with an efficient scheme for the field derivative) to handle multiply-scattering objects that break the Born/Rytov linearization. Relevant if a multi-shear GODT extension takes an optimization-based form and wants a forward model valid beyond single scattering.
 
-## Measured here: WPM vs. first Born (provisional)
+## Measured here: WPM vs. first Born
 
-Implemented and exercised in `lab/shearlib.py` for [[multiple-scattering-check]].
-Two things that matter and are not in the paper.
+Implemented and exercised in `lab/shearlib.py` for [[multiple-scattering-check]] and
+[[full-wave-referee]]. Two things that matter and are not in the paper.
 
 **The obliquity factor is taken at the incident ray.** For a single slice WPM
 reduces analytically to the transmission
-$t(\mathbf r)=\exp[i\,k_z(n(\mathbf r),\mathbf k_{i\perp})\,\delta z]$ — the local
-axial wavenumber evaluated at the *incident* transverse frequency — so its
-scattered amplitude carries $1/k_{iz}$ where the first Born approximation carries
-$1/k_z(\mathbf k_s)$, the *scattered* one. The ratio is exactly $k_z/k_{iz}$,
-verified numerically to 1e-3 (and the transmission itself to 1e-12) in
-`shearlib.selftest`. The two agree for forward scattering and part company as the
-scattering angle grows. This is a property of multi-slice propagation, shared with
-BPM, and is separate from the paraxial limitation the paper *does* discuss.
+$t(\mathbf r)=\exp[i\,k_z(n(\mathbf r),\mathbf k_{i\perp})\,\delta z]$, with the local
+axial wavenumber evaluated at the *incident* transverse frequency. Its scattered amplitude
+therefore carries $1/k_{iz}$ where the first Born approximation carries $1/k_z(\mathbf k_s)$,
+the *scattered* one. This is a property of multi-slice propagation, shared with BPM, and
+separate from the paraxial limitation the paper *does* discuss.
 
-**Consequence for this project.** On a thick cell-like object at 60° illumination
-this implementation shows a WPM-vs-Born gap of ~0.67 relative that converges to a floor
-as $\delta z\to0$. Part of it may be a window/absorber effect (see
-[[multiple-scattering-check]] §3), so it is provisional. It does not affect GODT's own
-Shepp–Logan check, which compares GODT with differentiated ODT on the same WPM data. So validating a [[rytov-approximation|Rytov]]/Ewald pipeline on
-WPM-generated data tests the pipeline and this forward-model gap together. Anyone
-validating a multi-shear design this way needs a forward model whose linear limit
-*is* the inverse's model — which is the argument for [[ma2017]]'s route, or for a
-Born-series solver.
+**On a thick object the law is exact** ([[full-wave-referee]] §2). With WPM and first Born
+on the same simulation window, WPM's linear limit is Born $\times\,k_z/k_{iz}\,\times$ a
+slice-placement phase, to 0.3 % at every step size tested, and $|\text{WPM}/\text{Born}|$
+divided by $k_z/k_{iz}$ is $1.000\pm0.001$ in every angle bin. **[audit 2026-11-25]** An
+earlier version of this section reported a further, unexplained steep-angle deficit on
+thick objects (a gap converging to ~0.67) and called it provisional. That deficit came from
+the comparison, not from WPM: WPM ran on a 19.2 μm window with an absorbing edge and was
+cropped to 12.8 μm, while Born was evaluated on a 12.8 μm periodic window, and steep rays
+walk 10–25 μm sideways. Matched windows remove it entirely.
+
+**Consequence for this project.** Validating a [[rytov-approximation|Rytov]]/Ewald pipeline
+on WPM-generated data tests the pipeline and a factor $k_z/k_{iz}$, which runs from about
+0.2 to 2 at GODT's 60° illumination. Beyond the linear limit, WPM's nonlinear response at
+steep angles is not converged in $\delta z$, and on a cell phantom its nonlinear excess does
+not match the exact one ([[full-wave-referee]] §3). For this project's purposes it is
+replaced by multi-slice first Born, whose linear limit is Born by construction
+([[multi-slice-forward-models]]). This does not affect GODT's own Shepp–Logan check, which
+compares GODT with differentiated ODT on the same WPM data.
 
 ## Raises
 

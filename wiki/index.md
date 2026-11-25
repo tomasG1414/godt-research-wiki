@@ -53,6 +53,8 @@ that name under `wiki/` (for example `wiki/notes/finite-shear-null-experiment.md
 - [[optimal-experimental-design]] — convex A/D/maximin design over time shares, the equivalence-theorem certificate, and why optimal designs here are not sparse
 - [[partially-coherent-transfer-function]] — TCC/Hopkins theory, coherence ratio, WOTF/PGTF, and the broadband Ewald-plane extension
 - [[pseudo-thermal-illumination]] — rotating-diffuser source: kills spatial coherence only, which reopens single-shot carrier multiplexing for multi-shear
+- [[convergent-born-series]] — exact iterative Helmholtz solver, the project's referee: validated against scalar Mie, and how to set it up for transmission ODT
+- [[multi-slice-forward-models]] — BPM, WPM and multi-slice Born: WPM's exact obliquity law, accuracy beyond Born, the window and step-size traps
 
 ## Entities
 
@@ -66,5 +68,7 @@ that name under `wiki/` (for example `wiki/notes/finite-shear-null-experiment.md
 - [[multishear-fusion-design-problem]] — concept glossary + precise formulation: per-voxel Fisher information under Ewald sampling, BLUE/Wiener fusion, convex optimal shear design
 - [[multishear-fusion-design-solution]] — results: J separates, 3.02 % true lost volume (0.09 % with a second direction), rule Δ ≈ 2π/K_max, Õ-space fusion beats equal-weight averaging 21×, sparsity conjecture refuted (audited 2026-09-25, 2026-10-20)
 - [[multishear-fusion-derivation]] — the theory from Helmholtz up: Fourier diffraction theorem, separation, closed-form M(K), nulls, fusion = precision-weighted averaging, OED certificate, E1/E2
-- [[multiple-scattering-check]] — WPM re-test of the design solution: null planes stay put, margins shrink with contrast, gridding is a large error term, shear data skip the unwrapping step
+- [[multiple-scattering-check]] — WPM re-test of the design solution: null planes stay put, margins shrink with contrast, gridding is a large error term, shear data skip the unwrapping step (disputed in part 2026-11-25: forward-model gap and gridding revisited by the two notes below)
+- [[full-wave-referee]] — exp09: exact solver matches scalar Mie to 0.4 %; WPM = Born × k_z/k_iz once the windows match; exp06's multiple-scattering model D does not reproduce the exact excess
+- [[gridding-and-forward-model]] — exp10/11: nearest-voxel gridding was 73 % of exp06's realistic-data loss; the design margins with exact gridding and a validated forward model
 - [[colour-multiplexed-shear]] — colour as a free shear channel (Δ ∝ λ): equals a mechanical shear pair, blue + green is the right pair, unnecessary at the design-rule shear; related 2D hardware in a 2026 preprint by the GODT authors' group
