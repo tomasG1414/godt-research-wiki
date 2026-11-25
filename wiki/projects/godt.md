@@ -98,4 +98,4 @@ Notes: [[full-wave-referee]] (exp09), [[gridding-and-forward-model]] (exp10, exp
 - Spatially varying shear. Real two-direction instruments show shear varying across the field ([[2605-04297-double-sagnac-ls-qpm]]). A position-dependent $\Delta$ moves the nulls, which could average them away or blur any inverse filter.
 - ~~Bilinear (or NUFFT) gridding~~ and ~~a Born-series forward model~~: done, step 4.
 - Partial coherence: whether the shear factor stays a simple multiplier under [[ledwig-robles2023]]'s broadband Ewald-plane treatment.
-- Real samples: placing GODT's targets (neurons, [[nano-printed-cell-phantom]]) on the $a\,\delta n/\lambda$ axis, which decides how much of the design study applies to them.
+- ~~Real samples on the $a\,\delta n/\lambda$ axis~~: done from the literature in [[real-samples-on-the-scattering-axis]]. Bacteria and isolated organelles sit below the thresholds, single cells straddle them (and the axis has a max- and a mean-contrast reading a factor 3.6 apart), GODT's printed phantom sits at 0.15–0.30, and its neurons cannot be placed from the paper. A uniform-sphere run would pin the threshold for nearly uniform objects.

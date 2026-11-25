@@ -38,6 +38,7 @@ titles are not ASCII). Run the tests from the repository root with `pytest -q`
 | `exp09_full_wave_referee.py` | exact Helmholtz referee (convergent Born series) vs scalar Mie; WPM's linear law on a matched window; WPM / multi-slice Born / exp06's model D against the exact nonlinear excess. ~45 min, ~6 GB | `wiki/notes/full-wave-referee.md` |
 | `exp10_exact_gridding.py` | exp06's data reconstructed with no gridding (per-column exact solve) vs nearest-voxel deposition. ~10 min, ~4 GB | `wiki/notes/gridding-and-forward-model.md` |
 | `exp11_exact_design.py` | exp06's design comparison with both implementation errors removed: multi-slice Born on a 38.4 um window, both estimators, three contrasts; writes the README figure. ~45 min, ~6 GB | same |
+| `realsample_table.py` | arithmetic for the literature table: a*dn/lambda per sample from sourced inputs; `--phantom` gives exp06's max- vs mean-contrast readings. Instant | `wiki/notes/real-samples-on-the-scattering-axis.md` |
 | `citation_sweep.py` | OpenAlex forward citation sweep over the project's anchors | `wiki/notes/forward-citation-sweep-2026-07.md` |
 | `report.py` | renders `out/citations.json` | same |
 | `extract_pdfs.py` | PDF → text for ingests (PyMuPDF text layer; `pip install -r lab/requirements-ingest.txt`) | ingest workflow |

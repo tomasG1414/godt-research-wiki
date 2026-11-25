@@ -28,7 +28,7 @@ nothing was simulated for this note.
    ($a=4.8\times0.62=2.98$ μm) and the *maximum* $|\delta n|$ in the volume (0.0769 at
    contrast 1). The volume-mean contrast of that phantom is 0.0215, a ratio of 0.28
    (computed, `realsample_table.py --phantom`). So the thresholds of
-   [[multiple-scattering-check]] §5 are $0.23\lambda$ and $0.46\lambda$ in the
+   [[multiple-scattering-check]] §5 and [[gridding-and-forward-model]] §4 are $0.23\lambda$ and $0.46\lambda$ in the
    max-contrast reading and $0.064\lambda$ and $0.13\lambda$ in the mean-contrast
    reading. [[chen1998]]'s $0.24\lambda$ is for uniform cylinders, where the two readings
    coincide. For a nearly uniform object (a red cell, a bacterium) the project's results
@@ -63,17 +63,20 @@ hidden in it.
 - **Which $\delta n$.** *max*: the largest contrast anywhere in the object, as exp06
   uses. *mean*: the volume average, which is what sets the phase accumulated through the
   object. Both are given where the source allows. Thresholds in the two readings, from
-  [[multiple-scattering-check]] §4–5 and the 0.28 ratio above:
+  [[gridding-and-forward-model]] §4 (multi-slice Born, checked against an exact solver;
+  nearest-voxel / exact estimator) and the 0.28 ratio above:
 
   | exp06 contrast | $x_{\max}$ | $x_{\text{mean}}$ | fusion vs averaging | best pair vs single 0.8 μm |
   |---|---|---|---|---|
-  | (linear model, no scattering) | n/a | n/a | 9.6× (A), 1.8× (B) | 14.3× (A), 2.5× (B) |
-  | 0.5 | 0.229 | 0.064 | 1.1× | 1.3× |
-  | 1.0 | 0.458 | 0.128 | 1.0× | 1.0× |
-  | 2.0 | 0.915 | 0.256 | 1.1× (estimate no better than zero) | 1.3× |
+  | (linear model, no scattering) | n/a | n/a | 9.6× (on-voxel data); 1.8× / 5.9× (continuum data) | 14.3×; 2.5× / 8.8× |
+  | 0.5 | 0.229 | 0.064 | 1.15× / 1.08× | 1.33× / 1.31× |
+  | 1.0 | 0.458 | 0.128 | 1.02× / 0.96× | 1.09× / 1.07× |
+  | 2.0 | 0.915 | 0.256 | ~1× (not validated) | ~1× (not validated) |
 
-  exp06 printed no design margins below contrast 0.5; its linearity table has one
+  No design margins were computed below contrast 0.5; exp06's linearity table has one
   lower point, $x_{\max}=0.114$ ($x_{\text{mean}}=0.032$), with 7 % nonlinearity.
+  *(The thresholds were first measured with exp06's WPM-based model D,
+  [[multiple-scattering-check]] §5, which gave the same margins at contrast 0.5.)*
 - **Which $a$.** The phantom is a sphere, so radius and half path agree. Adherent cells
   and red cells are flat. The table gives the half thickness (normal-incidence path) and,
   where it matters, the lateral radius. At GODT's 60° illumination the path through a
@@ -192,9 +195,10 @@ threshold, not the 14.3× and 9.6× of the linear model.
 
 **At or beyond the second threshold: adherent mammalian cells by maximum contrast, red
 cells along their radius.** 0.15–0.7 for HeLa and, by proxy, 0.6–1.2 for neuron somas.
-[[multiple-scattering-check]] §5 finds the design margin gone at 0.46 and the first-order
-estimate no better than zero by 0.92. A nonlinear inverse of the kind [[ma2017]]
-describes is what that note names as the fix.
+[[gridding-and-forward-model]] §4 finds the design margin gone at 0.46 with a validated
+forward model, and exp06 found the first-order estimate no better than zero by 0.92
+([[multiple-scattering-check]] §5). A nonlinear inverse of the kind [[ma2017]]
+describes is what both notes name as the fix.
 
 **Far beyond: spheroids and tissue slices.** $x>1$ under any reasonable contrast. The
 spheroid paper is itself a method for getting past the linear model in such samples.
@@ -215,10 +219,12 @@ spheroid paper is itself a method for getting past the linear model in such samp
 
 **What this means for the design study.** Its accuracy margins are properties of weakly
 scattering objects, and most whole cells are not in that class by this axis. Three
-things soften that. The geometric results hold at any contrast. The reduction from 9.6×
-to 1.8× is gridding, which is fixable and independent of the sample. And the
-multiple-scattering margins rest on one phantom and a forward model flagged as
-provisional ([[multiple-scattering-check]] §3, §7).
+things soften that. The geometric results hold at any contrast. Most of the reduction
+from 9.6× to 1.8× is gridding, which is fixable and independent of the sample: without
+it the margin on single-scattering data is 5.9× ([[gridding-and-forward-model]]). And
+the multiple-scattering margins rest on one phantom and a forward model validated only
+on near-axis rays and up to $x_{\max}=0.46$ ([[full-wave-referee]] §3). An inverse that
+models multiple scattering would move the thresholds; none has been tested.
 
 ## 5. What this does *not* establish
 
