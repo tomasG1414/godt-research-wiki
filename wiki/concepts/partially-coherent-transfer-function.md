@@ -2,7 +2,7 @@
 type: concept
 projects: [godt]
 created: 2026-07-19
-updated: 2026-07-19
+updated: 2026-11-25
 status: current
 ---
 
@@ -41,4 +41,4 @@ GODT measures a phase gradient under broadband LED illumination and reconstructs
 
 1. The finite-shear factor $\sin(2\pi m\Delta - \phi)$ appearing inside the DIC TCC is the same filter as GODT's $(e^{j\Delta K_x}-1)/\Delta$ — so the transfer nulls of [[finite-shear-null-experiment]] have 2D DIC precedent going back to Cogswell & Sheppard (1992).
 2. The bias $\phi$ translates the null comb, which GODT's phase-shifting scheme discards. Whether bias diversity is a cheaper substitute for shear-magnitude diversity is open. *(inference)*
-3. Whether GODT's actual broadband transfer function differs materially from its assumed coherent one is computable with [[ledwig-robles2023]]'s method and currently unknown.
+3. Whether GODT's actual broadband transfer function differs materially from its assumed coherent one is computable with [[ledwig-robles2023]]'s method and currently unknown. **[2026-11-25]** A 2D simulation answers part of it for the shear data ([[partial-coherence-and-the-shear-factor]]): the separable coherent model holds within 1 % away from the pupil edge up to a 0.5–1° source cone and under GODT's fractional bandwidth; an extended source also apodises the hard pupil edge, which is where the coherent model fails first.

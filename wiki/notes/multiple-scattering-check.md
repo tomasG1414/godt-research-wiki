@@ -407,7 +407,10 @@ instead of propagating through an unwrap across the field.
   multiple-scattering check. [[ledwig-robles2023]]'s Ewald-*plane* question — whether
   $G$ survives as a multiplicative factor under a genuinely partially coherent
   source — is untouched, and §2's theorem does *not* cover it: that identity is about
-  a single coherent realisation of $u_R$.
+  a single coherent realisation of $u_R$. **[audit 2026-11-25]** Answered in 2D, weak
+  scattering, in [[partial-coherence-and-the-shear-factor]]: the data are a complex-weighted
+  source average of per-source coherent shear data, and $G$ stays a multiplier for cones up
+  to about 0.5–1°.
 - **Amplitude is kept.** GODT discards it in practice ([[krauze2016]] prices that at
   0.44 quality-index points); here $u_R$ is complex throughout.
 - **E6, spatially varying shear, is still open** and is now the cheapest remaining

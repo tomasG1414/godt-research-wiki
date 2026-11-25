@@ -423,7 +423,7 @@ the mechanical {0.8, 0.55} μm pair of §3.
 
 ## 7. What this does *not* establish
 
-- **$\mu(\Delta)$ is a model.** The jinc in §4 is van Cittert–Zernike for a circular incoherent source; GODT's real LED-plus-condenser visibility against shear is not measured anywhere in this wiki. The *direction* of the C2 effect is robust; the numbers are not.
+- **$\mu(\Delta)$ is a model.** The jinc in §4 is van Cittert–Zernike for a circular incoherent source; GODT's real LED-plus-condenser visibility against shear is not measured anywhere in this wiki. The *direction* of the C2 effect is robust; the numbers are not. **[audit 2026-11-25]** Under oblique illumination the jinc is right only for a shear perpendicular to the plane of incidence; in that plane its argument carries $\cos\theta$, so the coherence loss is smaller (8° cone, 0.8 μm: $|\mu|$ 0.895, not 0.625). The jinc used here is the worst case ([[partial-coherence-and-the-shear-factor]] §4).
 - **A4 is doing a lot of work.** That phase-difference noise is independent of $|\Delta|$ is what lets $|G|^2\le4$ beat the ODT benchmark. It is right for a common-path shearing interferometer at fixed visibility and wrong the moment visibility enters, which is exactly what C2 shows.
 - **A6 (sequential channels).** E3 of the problem note — correlated channels under single-shot multiplexing — is not computed. It is the acquisition-side question and [[2605-04297-double-sagnac-ls-qpm]]'s cascade is the case that matters.
 - **Spatially varying shear (E6)** is untouched and remains the cheapest open item; the null planes move with $\Delta(\mathbf x)$ and the design is built on them being fixed.
