@@ -87,3 +87,60 @@ def test_cap_samples_lie_inside_the_pupil_and_the_grid():
     assert np.all(np.hypot(kxp, kyp) <= cfg.k_perp_max + 1e-9)
     assert np.all((0 <= iz) & (iz < grid.nz))
     assert np.all(kz >= cfg.kz_floor - 1e-9)
+
+
+# ---- exp09-exp11: exact referee, multi-slice Born, gridding-free estimator ----
+
+def test_scalar_mie_satisfies_the_optical_theorem():
+    # lossless sphere: total scattered power = extinction, (4 pi / k) Im f(0)
+    k = sl.GODT_SIM.k_m
+    mu = np.linspace(-1.0, 1.0, 8001)
+    f = sl.mie_scalar(k, 1.38 / 1.33, 1.0, mu)
+    sca = 2 * np.pi * np.sum(0.5 * (np.abs(f[1:]) ** 2 + np.abs(f[:-1]) ** 2) * np.diff(mu))
+    ext = 4 * np.pi / k * sl.mie_scalar(k, 1.38 / 1.33, 1.0, np.array([1.0]))[0].imag
+    assert sca / ext == pytest.approx(1.0, abs=1e-4)
+
+
+def test_scalar_mie_reduces_to_first_born_for_a_weak_sphere():
+    k, mu = sl.GODT_SIM.k_m, np.linspace(-1.0, 1.0, 2001)
+    f, fb = sl.mie_scalar(k, 1.0001, 1.0, mu), sl.born_sphere(k, 1.0001, 1.0, mu)
+    assert np.linalg.norm(f - fb) / np.linalg.norm(fb) < 5e-3
+
+
+def test_lattice_samples_equal_the_crop_fft_when_the_crop_holds_the_field():
+    F = np.zeros((64, 64), complex)
+    F[20:44, 24:40] = np.random.default_rng(0).standard_normal((24, 16))
+    ix, iy = np.nonzero(np.ones((32, 32), bool))
+    np.testing.assert_allclose(sl.lattice_samples(F, 32, ix, iy),
+                               np.fft.fft2(F[16:48, 16:48])[ix, iy], atol=1e-10)
+
+
+def test_column_wiener_with_on_voxel_rays_is_the_per_voxel_rule():
+    # exp10's estimator must collapse to exp06's when every ray sits on its voxel
+    g, rng = sl.KGrid(32, 0.1, 32), np.random.default_rng(5)
+    cols, Kv, c, lin = [], [], [], []
+    for ki in sl.snap_illumination(sl.GODT_SIM, g, 4)[0]:
+        cap = sl.cap_geometry(sl.GODT_SIM, g, ki)
+        ix, iy = np.nonzero(cap["ok"])
+        cols.append(ix * g.n + iy)
+        Kv.append(cap["Kz_vox"][ix, iy])
+        c.append(np.exp(-1j * cap["Kz_vox"][ix, iy] * cap["z_c"]))
+        lin.append((ix * g.n + iy) * g.nz + cap["iz"][ix, iy])
+    cols, Kv, c, lin = map(np.concatenate, (cols, Kv, c, lin))
+    w = rng.uniform(0.5, 2.0, lin.size)
+    gy = rng.standard_normal(lin.size) + 1j * rng.standard_normal(lin.size)
+    S = rng.uniform(0.5, 2.0, g.shape)
+    S = 0.5 * (S + sl.flipK(S))
+    num = (np.bincount(lin, gy.real, g.size) + 1j * np.bincount(lin, gy.imag, g.size)).reshape(g.shape)
+    J = np.bincount(lin, w, g.size).reshape(g.shape)
+    ref = sl.fuse([(sl.hsym_c(num), sl.hermitian_sym(J))], S, "wiener")[0]
+    cw = sl.ColumnWiener(g, cols, Kv, c)
+    est = cw.solve([cw.data_term(w)], [cw.rhs(gy)], S)
+    np.testing.assert_allclose(est, ref, rtol=0, atol=1e-12 * np.abs(ref).max())
+
+
+def test_msb_is_exact_in_free_space():
+    g = sl.KGrid(32, 0.1, 32)
+    ki = sl.snap_illumination(sl.GODT_SIM, g, 4)[0][1]
+    r = sl.MSB(np.zeros(g.shape), g.dx, g.dz, sl.GODT_SIM.k_m).ratio(ki)
+    np.testing.assert_allclose(r, 1.0, atol=1e-12)

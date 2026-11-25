@@ -146,8 +146,10 @@ def main():
           f"{th_eff.mean():.2f} +- {th_eff.std():.2f} deg")
     print(f"  (nominal {cfg.theta_ill:.1f}); the realised value is used everywhere below.")
     print(f"  WPM grid {PAD}x{PAD}x{grid.nz} = {PAD*grid.dx:.1f} um, {N_LEVELS} index levels,")
-    print(f"  absorbing edge outside |x| = 7.9 um; measurement cropped to the central "
-          f"{grid.n*grid.dx:.1f} um.")
+    # WPM's taper covers absorb_frac (default 0.18) of the FULL width at each edge.
+    # (Corrected 2026-11-25: this used to print a hard-coded 7.9 um.)
+    print(f"  absorbing edge outside |x| = {PAD*grid.dx*(0.5-0.18):.2f} um; measurement cropped "
+          f"to the central {grid.n*grid.dx:.1f} um.")
 
     # ------------------------------------------------------ phantom + prior
     O1, dn1 = cell_phantom(grid, rng, scale=PHANTOM_SCALE)

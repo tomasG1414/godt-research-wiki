@@ -13,12 +13,16 @@ Physics 8:510 (2025), doi:10.1038/s42005-025-02416-3.
 Wolf, Opt. Commun. 1, 153 (1969) -> Ewald/band geometry.
 Brenner & Singer, Appl. Opt. 32, 4984 (1993) -> wave-propagation method (WPM),
   the angle-unrestricted multiple-scattering forward model used by exp06.
+Osnabrugge, Leedumrongwatthanakun & Vellekoop, J. Comput. Phys. 322, 113
+  (2016), arXiv:1601.05997 -> convergent Born series (CBS), the exact
+  Helmholtz solver exp09 uses as a referee. Not ingested as a wiki source.
 
 Wiki: wiki/notes/finite-shear-null-experiment.md          (H, absH, ... : exp01/02)
       wiki/notes/multishear-fusion-design-problem.md      (the model this implements)
       wiki/notes/multishear-fusion-design-solution.md     (KGrid, cap_*, Design*: exp03/04/05)
       wiki/notes/multiple-scattering-check.md              (cell_phantom, wpm_*: exp06)
       wiki/notes/colour-multiplexed-shear.md               (at_wavelength, unmix_shares: exp08)
+      wiki/notes/full-wave-referee.md                      (mie_scalar, CBS, MSB: exp09)
 """
 import numpy as np
 
@@ -37,6 +41,10 @@ __all__ = [
     "shell_spectrum", "hsym_c", "fuse",
     # wavelength as a shear channel (exp08+)
     "at_wavelength", "unmix_shares",
+    # exact referee and a Born-consistent multiple-scattering model (exp09+)
+    "mie_scalar", "born_sphere", "CBS", "MSB", "lattice_samples",
+    # gridding-free reconstruction (exp10+)
+    "ColumnWiener",
 ]
 
 
@@ -1050,6 +1058,403 @@ def shear_rytov(ratio, dx, dvec, wrap_safe=True):
     return np.log(shifted) - np.log(ratio)
 
 
+# ------------------- exact referee + Born-consistent multiple scattering (exp09+)
+#
+# exp06 had to splice its multiple-scattering model (D = B + C - B') because
+# WPM's linear limit is not first Born. This section adds
+#   mie_scalar / born_sphere -- the exact scalar solution for a homogeneous
+#       sphere (partial waves), and its first-Born counterpart;
+#   CBS -- the convergent Born series of Osnabrugge et al. (2016): an iterative
+#       solver of the full scalar Helmholtz equation, forward and backward
+#       scattering and evanescent coupling included. The exact referee.
+#   MSB -- multi-slice first Born, forward only: as cheap as WPM, but each
+#       slice scatters through the exact Green's function -i/(2 k_z) of the
+#       SCATTERED wave, so its linear limit is first Born by construction
+#       (related to the multi-layer Born model of Chen et al., Optica 7, 394
+#       (2020), not ingested here).
+# Conventions are those of the exp06 section: O = k0^2 (n_m^2 - n^2), so
+# (lap + k_m^2) u = O u, centred arrays, slice k at z_k = (k - nz//2) dz.
+
+
+def mie_scalar(k, m, a, cos_theta, lmax=None):
+    """Far-field amplitude f(theta) of a homogeneous sphere, SCALAR waves.
+
+    Exact partial-wave solution of (lap + k(r)^2) psi = 0 for a sphere of
+    radius a and relative index m = n_sphere / n_medium in a medium of
+    wavenumber k, with psi and d psi / dr continuous at r = a (the scalar
+    analogue of Mie theory; GODT's whole model is scalar). Outside,
+    psi = e^{ikz} + f(theta) e^{ikr} / r as r -> inf, with
+
+        f = (-i/k) sum_l (2l+1) b_l P_l(cos theta),
+        b_l = [k1 j_l'(k1 a) j_l(k a) - k j_l(k1 a) j_l'(k a)]
+              / [k j_l(k1 a) h_l'(k a) - k1 j_l'(k1 a) h_l(k a)],   k1 = m k.
+
+    Checked in selftest against first Born in the weak limit and against the
+    optical theorem (sigma_ext = sigma_sca for a lossless sphere).
+    """
+    from scipy.special import spherical_jn, spherical_yn, eval_legendre
+    k1 = m * k
+    if lmax is None:
+        x = max(k, k1) * a
+        lmax = int(x + 4 * x ** (1 / 3) + 10)
+    ct = np.asarray(cos_theta, dtype=float)
+    f = np.zeros(ct.shape, complex)
+    for l in range(lmax + 1):
+        j, jp = spherical_jn(l, k * a), spherical_jn(l, k * a, derivative=True)
+        j1, j1p = spherical_jn(l, k1 * a), spherical_jn(l, k1 * a, derivative=True)
+        h = j + 1j * spherical_yn(l, k * a)
+        hp = jp + 1j * spherical_yn(l, k * a, derivative=True)
+        b = (k1 * j1p * j - k * j1 * jp) / (k * j1 * hp - k1 * j1p * h)
+        f += (2 * l + 1) * b * eval_legendre(l, ct)
+    return -1j / k * f
+
+
+def born_sphere(k, m, a, cos_theta):
+    """First-Born far-field amplitude of the same sphere:
+    f_B = (k1^2 - k^2) a^3 j1(q a) / (q a),  q = 2 k sin(theta/2)."""
+    from scipy.special import spherical_jn
+    q = k * np.sqrt(np.maximum(2.0 - 2.0 * np.asarray(cos_theta, float), 0.0))
+    qa = np.maximum(q * a, 1e-12)
+    return ((m * k) ** 2 - k ** 2) * a ** 3 * spherical_jn(1, qa) / qa
+
+
+def _kz_prop(KX, KY, k_m):
+    kt2 = KX ** 2 + KY ** 2
+    return np.sqrt(np.maximum(k_m ** 2 - kt2, 0.0)), kt2 < k_m ** 2
+
+
+class CBS:
+    """Convergent Born series for the scattered field (osnabrugge2016).
+
+    Solves the full scalar Helmholtz equation for the scattered field
+    psi_s of a plane wave psi_i = exp(i k_i . r) hitting the object O:
+
+        (lap + k_m^2 - O + i alpha) psi_s = O psi_i,
+
+    on an n x n x nz box that is periodic transversely (k_i must lie on the
+    transverse lattice, as for WPM) with 2*nb absorbing slices appended in z.
+    alpha (> 0 only in those slices) acts on the scattered field alone, the
+    same trick WPM's edge taper uses, so the incident wave is never absorbed.
+    Pseudo-spectral Laplacian; no paraxial, forward-only or weak-scattering
+    approximation. The periodic transverse box is the SAME one first Born is
+    evaluated on (`born_rytov_ratio`), so the two share a window exactly.
+
+    Iteration (the paper's Eqs.): with k(r)^2 = k0^2 + i eps + V(r),
+    k0^2 = midpoint of Re k^2, eps >= max |k^2 - k0^2|, gamma = (i/eps) V,
+    g0(p) = 1/(|p|^2 - k0^2 - i eps):
+        psi <- psi + gamma [ g0 * (V psi + S) - psi ],   S = -O psi_i.
+    Each iteration advances the field by about 2 k0 / eps, so cost grows with
+    the contrast and with the absorber strength.
+
+    Absorber: Im k^2 = alpha_max * b(u)^2 over the 2 nb appended slices,
+    b rising linearly from the object box to the middle of the layer and back
+    (the z axis is periodic, so the two halves are one contiguous layer).
+    `alpha_max` defaults to the value that attenuates a normally travelling
+    wave by exp(-atten) across the whole layer.
+    """
+
+    def __init__(self, O, dx, dz, k_m, nb=40, atten=12.0, alpha_max=None,
+                 frame=0.0, frame_atten=8.0, dtype=np.complex128):
+        import scipy.fft as sfft
+        self.sfft = sfft
+        O = np.asarray(O)
+        self.n, _, self.nz = O.shape
+        self.nb, self.dx, self.dz, self.k_m = int(nb), float(dx), float(dz), float(k_m)
+        self.dtype = dtype
+        nzt = self.nz + 2 * self.nb
+        self.nzt = nzt
+        L = 2 * self.nb * self.dz
+        if alpha_max is None:
+            # normal-incidence amplitude decay: int alpha/(2 k_m) dz = alpha_max L / (6 k_m)
+            alpha_max = 6.0 * self.k_m * atten / L if self.nb > 0 else 0.0
+        self.alpha_max = float(alpha_max)
+        u = (np.arange(2 * self.nb) + 0.5) / max(2 * self.nb, 1)
+        prof = self.alpha_max * (1.0 - np.abs(2 * u - 1.0)) ** 2
+        delta = np.zeros((self.n, self.n, nzt), complex)      # k^2 - k_m^2
+        delta[:, :, :self.nz] = -O
+        delta[:, :, self.nz:] = 1j * prof[None, None, :]
+        # Optional transverse frame: the box stays periodic, but scattered
+        # light walking sideways is absorbed in the outer `frame` fraction of
+        # each edge instead of circulating. Without it a periodic array of
+        # scatterers is simulated, whose near-grazing and guided waves never
+        # reach the z layers (slow, algebraic convergence) and are not the
+        # physics of an isolated object. Same profile shape as WPM's taper.
+        self.frame = float(frame)
+        if self.frame > 0:
+            xs = (np.arange(self.n) - self.n // 2) * self.dx
+            w = self.frame * self.n * self.dx
+            half = 0.5 * self.n * self.dx
+            t = np.clip((np.abs(xs) - (half - w)) / w, 0.0, 1.0)
+            # lateral amplitude decay across one edge for a grazing wave:
+            # int alpha/(2 k_m) dx = a_max w / (6 k_m)  (quadratic profile)
+            a_xy = 6.0 * self.k_m * frame_atten / w
+            Fxy = a_xy * np.maximum(t[:, None] ** 2, t[None, :] ** 2)
+            if np.any(O[Fxy > 0, :] != 0):
+                raise ValueError("object overlaps the absorbing frame")
+            # Where frame and z layers meet the two add. (Taking the max
+            # instead lowers eps but left a weakly damped mode in small boxes:
+            # 1500 iterations without converging, against ~200 with the sum.)
+            delta = delta + 1j * Fxy[:, :, None]
+            self.frame_alpha = a_xy
+            self.clear_half = half - w
+        re = delta.real
+        self.shift = 0.5 * (min(re.min(), 0.0) + max(re.max(), 0.0))
+        self.k0sq = self.k_m ** 2 + self.shift
+        self.eps = max(float(np.abs(delta - self.shift).max()), 1e-6 * self.k_m ** 2)
+        self.V = (delta - self.shift - 1j * self.eps).astype(dtype)
+        self.gamma = ((1j / self.eps) * self.V).astype(dtype)
+        kx = 2 * np.pi * np.fft.fftfreq(self.n, self.dx)
+        kz = 2 * np.pi * np.fft.fftfreq(nzt, self.dz)
+        p2 = kx[:, None, None] ** 2 + kx[None, :, None] ** 2 + kz[None, None, :] ** 2
+        self.g0 = (1.0 / (p2 - self.k0sq - 1j * self.eps)).astype(dtype)
+        self.p2 = p2
+        self.O = O
+        x = (np.arange(self.n) - self.n // 2) * self.dx
+        self.x = x
+        self.z = (np.arange(self.nz) - self.nz // 2) * self.dz
+        self.X, self.Y = np.meshgrid(x, x, indexing="ij")
+
+    def incident(self, ki, z):
+        kix, kiy = float(ki[0]), float(ki[1])
+        kiz = np.sqrt(self.k_m ** 2 - kix ** 2 - kiy ** 2)
+        return np.exp(1j * (kix * self.X + kiy * self.Y))[:, :, None] * \
+            np.exp(1j * kiz * np.asarray(z))[None, None, :]
+
+    def solve(self, ki, tol=1e-7, maxiter=5000, verbose=False):
+        """Scattered field on the object box (n, n, nz) and an info dict
+        (iterations, final update size, Helmholtz residual)."""
+        f, fi = self.sfft.fftn, self.sfft.ifftn
+        S = np.zeros((self.n, self.n, self.nzt), self.dtype)
+        S[:, :, :self.nz] = -self.O * self.incident(ki, self.z)
+        g0S = fi(self.g0 * f(S, workers=-1), workers=-1)
+        psi = (self.gamma * g0S).astype(self.dtype)          # first iterate
+        nS = np.linalg.norm(S)
+        it, upd = 1, np.inf
+        while it < maxiter:
+            d = self.gamma * (fi(self.g0 * f(self.V * psi, workers=-1), workers=-1) + g0S - psi)
+            psi += d
+            it += 1
+            upd = np.linalg.norm(d) / max(np.linalg.norm(psi), 1e-300)
+            if verbose and it % 50 == 0:
+                print(f"      CBS iteration {it}: update {upd:.2e}")
+            if upd < tol:
+                break
+        # Helmholtz residual of the converged field, inside the object box
+        lap = fi(-self.p2 * f(psi, workers=-1), workers=-1)
+        k2 = self.k_m ** 2 + (self.V + self.shift + 1j * self.eps)
+        res = (lap + k2 * psi + S)[:, :, :self.nz]
+        info = {"iterations": it, "update": upd, "eps": self.eps,
+                "residual": float(np.linalg.norm(res) / max(nS, 1e-300))}
+        return psi[:, :, :self.nz].astype(np.complex128), info
+
+    def ratio(self, psi_s, ki):
+        """u / u_i at the object-centre plane, from the field on the top
+        slice of the object box: exactly what `WPM.to_centre` returns."""
+        zt = self.z[-1]
+        U = self.incident(ki, [zt])[:, :, 0] + psi_s[:, :, -1]
+        Uc = angular_propagate(U, self.dx, self.k_m, -zt)
+        return Uc / self.incident(ki, [0.0])[:, :, 0]
+
+
+class MSB:
+    """Multi-slice first Born, forward only.
+
+    March the total field slice by slice. Slice k (centred at z_k) is lit by
+    the field propagated to its centre, and radiates through the exact
+    angular-spectrum Green's function of the SCATTERED wave,
+
+        dU~(k_perp) = -i dz / (2 k_z(k_perp)) * FT[O_k U(z_k)],
+
+    so its linear limit is first Born, slice placement included, by
+    construction (WPM's is Born times k_z/k_iz). Approximations, all measured
+    against CBS in exp09: no backward scattering, no evanescent coupling, a
+    slice does not scatter its own scattered field, and components with
+    k_z < kz_floor (grazing beyond ~84 deg in GODT_SIM) are not radiated --
+    on a periodic window they would circulate sideways for ever.
+    Two FFTs per non-empty slice, one complex multiply per empty one.
+    """
+
+    def __init__(self, O, dx, dz, k_m, kz_floor_frac=0.1, absorb_frac=0.0,
+                 absorb_rate=0.6):
+        import scipy.fft as sfft
+        self.sfft = sfft
+        self.O = np.asarray(O)
+        self.n, _, self.nz = self.O.shape
+        self.dx, self.dz, self.k_m = float(dx), float(dz), float(k_m)
+        k = 2 * np.pi * np.fft.fftfreq(self.n, self.dx)
+        KX, KY = np.meshgrid(k, k, indexing="ij")
+        self.kz, prop = _kz_prop(KX, KY, self.k_m)
+        rad = prop & (self.kz >= kz_floor_frac * self.k_m)
+        self.Ph = np.where(prop, np.exp(1j * self.kz * self.dz / 2), 0.0)
+        self.P = self.Ph ** 2
+        with np.errstate(divide="ignore"):
+            self.kern = np.where(rad, -1j * self.dz / (2 * np.maximum(self.kz, 1e-12)), 0.0) * self.Ph
+        self.active = [bool(np.any(self.O[:, :, s] != 0)) for s in range(self.nz)]
+        x = (np.arange(self.n) - self.n // 2) * self.dx
+        self.X, self.Y = np.meshgrid(x, x, indexing="ij")
+        self.z = (np.arange(self.nz) - self.nz // 2) * self.dz
+        # optional edge taper on the scattered part, identical to WPM's
+        self.absorb = None
+        if absorb_frac > 0:
+            w = absorb_frac * self.n * self.dx
+            t = np.clip((np.abs(x) - (0.5 * self.n * self.dx - w)) / w, 0.0, 1.0)
+            fe = np.exp(-absorb_rate * self.dz * t ** 2)
+            self.absorb = fe[:, None] * fe[None, :]
+
+    def ratio(self, ki):
+        """u / u_i at the object-centre plane, as `WPM.to_centre` returns."""
+        f, fi = self.sfft.fft2, self.sfft.ifft2
+        kix, kiy = float(ki[0]), float(ki[1])
+        kiz = np.sqrt(self.k_m ** 2 - kix ** 2 - kiy ** 2)
+        ramp = np.exp(1j * (kix * self.X + kiy * self.Y))
+        zlo = self.z[0] - self.dz / 2
+        Uk = f(ramp * np.exp(1j * kiz * zlo), workers=-1)
+        for s in range(self.nz):
+            if self.active[s]:
+                Uc = fi(Uk * self.Ph, workers=-1)
+                Uk = Uk * self.P + self.kern * f(self.O[:, :, s] * Uc, workers=-1)
+            else:
+                Uk = Uk * self.P
+            if self.absorb is not None:
+                Ui = ramp * np.exp(1j * kiz * (zlo + (s + 1) * self.dz))
+                Uk = f(Ui + (fi(Uk, workers=-1) - Ui) * self.absorb, workers=-1)
+        zex = self.z[-1] + self.dz / 2
+        back = np.where(self.kz > 0, np.exp(-1j * self.kz * zex), 0.0)
+        return fi(Uk * back, workers=-1) / ramp
+
+
+def lattice_samples(F, n, ix, iy):
+    """2D FFT of a centred N x N field (N a multiple of n, same pitch) at the
+    frequencies of the n-point lattice, indexed by (ix, iy) on that lattice,
+    in the phase convention of the centred n x n crop.
+
+    For a field contained in the crop this equals fft2(crop)[ix, iy] exactly.
+    For one that is not -- steep scattered light, refocused to the centre
+    plane, spreads tens of microns sideways -- it is the infinite-field-of-
+    view value, which is what first Born on a periodic n grid computes
+    (Poisson summation). Cropping instead truncates the field before the
+    transform, so every model, Born included, loses its steep rays differently;
+    exp09 shows that this, not physics, drove exp06's forward-model gaps.
+    """
+    N = F.shape[0]
+    m, r = divmod(N, n)
+    assert r == 0, "the big box must be a whole number of small boxes"
+    q = np.fft.fftfreq(n, 1.0 / n).astype(np.int64)
+    o = (N - n) // 2
+    U = np.fft.fft2(F)
+    return U[(q[ix] * m) % N, (q[iy] * m) % N] * np.exp(2j * np.pi * (q[ix] + q[iy]) * o / n)
+
+
+# ------------------------------------- gridding-free reconstruction (exp10+)
+#
+# exp06's estimator deposits every ray at the NEAREST K_z voxel (assumption
+# A3) and that alone costs a factor ~6 in RMSE. The fix needs no interpolation
+# kernel: along one K_perp column the continuum datum is an exact DTFT of the
+# nz slices of the 2D-FFT'd object, x_k = FFT_xy[O](K_perp, z_k), so
+#
+#     y_r = h_r c_r sum_k x_k exp(-i K_r (k - nz//2) dz),   c_r = e^{-i K_vox z_c}
+#
+# holds exactly (c_r is the centring phase exp06's `deposit` applies). The MAP
+# estimate under exp06's prior (O~_j independent, variance S_j) solves, per
+# column, the nz x nz system
+#
+#     [ sum_r w_r a_r a_r^H + F^H diag(1/S) F ] x = sum_r (h_r^* y_r / s^2) a_r,
+#
+# a Toeplitz data term plus a circulant prior term. With K_r = K_vox it
+# collapses to exp06's per-voxel  num / (J + 1/S)  exactly (selftest).
+
+
+def _partner_cols(cols, n):
+    ix, iy = np.divmod(cols, n)
+    return ((-ix) % n) * n + ((-iy) % n)
+
+
+class ColumnWiener:
+    """Exact (gridding-free) Wiener / fusion estimator over K_perp columns.
+
+    Built once per ray geometry: `cols` (ix * n + iy), continuum `Kz` and the
+    centring phase `c` of every ray of every illumination. Hermitian partners
+    of a real object are folded in, so each ray also measures column -K_perp
+    at -K_z with conjugated coefficients, exactly as `hsym_c` does per voxel.
+    Channel data enter through `data_term` (weights) and `rhs` (data), and
+    `solve` combines any set of channels with any time shares.
+    """
+
+    def __init__(self, grid, cols, Kz, c):
+        self.grid, self.n, self.nz, self.dz = grid, grid.n, grid.nz, grid.dz
+        cols = np.asarray(cols, np.int64)
+        pc = _partner_cols(cols, self.n)
+        Kz = np.asarray(Kz, float)
+        c = np.asarray(c, complex)
+        # a ray whose partner is itself (self-partner column AND K_z = 0)
+        # must not be counted twice -- the hsym_c rule for self-partner voxels
+        twin = (pc != cols) | (np.abs(Kz) > 1e-12)
+        self.cols = np.concatenate([cols, pc[twin]])
+        self.K = np.concatenate([Kz, -Kz[twin]])
+        self.c = np.concatenate([c, np.conj(c[twin])])
+        self.twin = twin
+        self.nray = cols.size
+        self.ucols, self.inv = np.unique(self.cols, return_inverse=True)
+        self.e1 = np.exp(1j * self.K * self.dz)          # one lag step per ray
+
+    def _lagsum(self, wts, lags):
+        """sum over each column's rays of wts * e1^lag, for lag in `lags`,
+        as a (n_used_cols, len(lags)) array."""
+        out = np.empty((self.ucols.size, len(lags)), complex)
+        p = wts * self.e1 ** lags[0]
+        for j in range(len(lags)):
+            out[:, j] = (np.bincount(self.inv, weights=p.real, minlength=self.ucols.size)
+                         + 1j * np.bincount(self.inv, weights=p.imag, minlength=self.ucols.size))
+            p = p * self.e1
+        return out
+
+    def _fold(self, v):
+        """Per-ray values of the original rays -> with the partner copies."""
+        return np.concatenate([v, v[: self.nray][self.twin]])
+
+    def data_term(self, w):
+        """Toeplitz lags t(D) = sum_r w_r e^{i K_r D dz}, D = 0..nz-1, for
+        ray weights w_r = |h_r|^2 / s^2 (one channel at unit share)."""
+        return self._lagsum(self._fold(np.asarray(w, float)), np.arange(self.nz))
+
+    def rhs(self, g):
+        """b(k) = sum_r g_r conj(c_r) e^{i K_r (k - nz//2) dz}, with
+        g_r = conj(h_r) y_r / s^2 per original ray (partners get conj(g))."""
+        g = np.asarray(g, complex)
+        # a self-partner ray (K = 0 in a self-partner column) measures a real
+        # number: keep Re(g), as hsym_c keeps Re(num) on self-partner voxels
+        g = np.where(self.twin, g, g.real)
+        gf = np.concatenate([g, np.conj(g[self.twin])])
+        return self._lagsum(gf * np.conj(self.c), np.arange(self.nz) - self.nz // 2)
+
+    def solve(self, T_list, b_list, S, chunk=256):
+        """Wiener estimate O~ on the full grid from channels combined as
+        sum_j T_j (data term, already scaled by its share) with right-hand
+        sides sum_j b_j. Columns no ray reaches are left at zero (no data).
+
+        `b_list` may instead be a list of such lists -- several data sets
+        (forward models) seen through the same channels -- which share one
+        factorisation; a list of estimates is then returned."""
+        n, nz = self.n, self.nz
+        multi = not isinstance(b_list[0], np.ndarray)
+        sets = b_list if multi else [b_list]
+        T = sum(T_list)
+        B = np.stack([sum(bl) for bl in sets], axis=-1)          # (cols, nz, nrhs)
+        d = np.arange(nz)[:, None] - np.arange(nz)[None, :]
+        est = np.zeros((n * n, nz, B.shape[-1]), complex)
+        Sc = np.asarray(S).reshape(n * n, nz)[self.ucols]
+        pcirc = nz * np.fft.ifft(1.0 / Sc, axis=1)       # circulant prior lags
+        for s0 in range(0, self.ucols.size, chunk):
+            sl = slice(s0, s0 + chunk)
+            Tl = T[sl]
+            N = np.where(d[None] >= 0, Tl[:, np.abs(d)], np.conj(Tl[:, np.abs(d)]))
+            N = N + pcirc[sl][:, d % nz]
+            x = np.linalg.solve(N, B[sl])
+            est[self.ucols[sl]] = np.fft.fft(x, axis=1)
+        out = [est[:, :, r].reshape(n, n, nz) for r in range(B.shape[-1])]
+        return out if multi else out[0]
+
+
 # ------------------------------------------------------------- utilities
 def out_path(fname):
     """Path inside lab/out/ (created on demand). Keeps artifacts together."""
@@ -1184,6 +1589,66 @@ def selftest():
     assert np.allclose(cap_density(c2, g2, 90), cap_density(GODT_SIM, g1, 90)), "cap scaling"
     assert np.allclose(unmix_shares(np.eye(3), [.25, .5, .25]), [.25, .5, .25]), "mosaic, no crosstalk"
     assert unmix_shares([[1, .2], [.2, 1]], [.5, .5]).max() < 0.5, "crosstalk costs"
+
+    # ---- exact referee + Born-consistent multiple scattering (exp09+) ----
+    km_ = GODT_SIM.k_m
+    mu = np.linspace(-1.0, 1.0, 8001)
+    fm = mie_scalar(km_, 1.38 / 1.33, 1.0, mu)
+    sca = 2 * np.pi * np.sum(0.5 * (np.abs(fm[1:]) ** 2 + np.abs(fm[:-1]) ** 2) * np.diff(mu))
+    ext = 4 * np.pi / km_ * mie_scalar(km_, 1.38 / 1.33, 1.0, np.array([1.0]))[0].imag
+    assert abs(sca / ext - 1) < 1e-4, f"Mie optical theorem ({sca / ext:.6f})"
+    fw, fb = mie_scalar(km_, 1.0001, 1.0, mu), born_sphere(km_, 1.0001, 1.0, mu)
+    assert np.linalg.norm(fw - fb) / np.linalg.norm(fb) < 5e-3, "Mie -> first Born"
+    # MSB: free space is exact, and the linear limit IS first Born on the pupil
+    gb = KGrid(64, 0.1, 64)
+    kib = snap_illumination(GODT_SIM, gb, 4)[0][1]
+    assert np.max(np.abs(MSB(np.zeros(gb.shape), gb.dx, gb.dz, km_).ratio(kib) - 1)) < 1e-12, "MSB free space"
+    xb = (np.arange(64) - 32) * 0.1
+    Xb, Yb, Zb = np.meshgrid(xb, xb, xb, indexing="ij")
+    Ob = 1e-4 * np.exp(-(Xb ** 2 + Yb ** 2 + Zb ** 2) / 2.0) * np.cos(9 * Xb + 4 * Zb)
+    capb = cap_geometry(GODT_SIM, gb, kib)
+    okb = capb["ok"]
+    ub = np.fft.fft2(np.log(MSB(Ob, gb.dx, gb.dz, km_).ratio(kib)))[okb]
+    bb = np.fft.fft2(np.log(born_rytov_ratio(Ob, GODT_SIM, gb, kib, capb)))[okb]
+    assert np.linalg.norm(ub - bb) / np.linalg.norm(bb) < 1e-5, "MSB linear limit = Born"
+    # CBS: a framed weak sphere converges geometrically and solves Helmholtz
+    gc = (np.arange(48) - 24) * 0.1
+    Xc, Yc, Zc = np.meshgrid(gc, gc, gc[12:36], indexing="ij")
+    Oc = np.where(Xc ** 2 + Yc ** 2 + Zc ** 2 <= 0.25, (2 * np.pi / 0.5) ** 2 * (1.33 ** 2 - 1.36 ** 2), 0.0)
+    cb = CBS(Oc, 0.1, 0.1, km_, nb=16, atten=6, frame=0.25, frame_atten=6)
+    _, info = cb.solve((0.0, 0.0), tol=1e-6, maxiter=1500)
+    assert info["iterations"] < 1500 and info["residual"] < 1e-5, f"CBS convergence {info}"
+    # full-box lattice sampling == crop FFT for a field the crop contains
+    Fq = np.zeros((96, 96), complex)
+    Fq[40:56, 38:60] = np.random.default_rng(4).standard_normal((16, 22))
+    ixq, iyq = np.nonzero(np.ones((32, 32), bool))
+    assert np.allclose(lattice_samples(Fq, 32, ixq, iyq),
+                       np.fft.fft2(Fq[32:64, 32:64])[ixq, iyq], atol=1e-10), "lattice_samples"
+
+    # ---- gridding-free reconstruction (exp10+) ----
+    # with every ray on its voxel's K_z the column solver IS exp06's per-voxel
+    # Wiener rule, Hermitian folding and self-partner voxels included
+    g = KGrid(32, 0.1, 32)
+    rq = np.random.default_rng(3)
+    cols, Kv, cc, lin, hh = [], [], [], [], []
+    for ki in snap_illumination(GODT_SIM, g, 6)[0]:
+        cp = cap_geometry(GODT_SIM, g, ki)
+        ix, iy = np.nonzero(cp["ok"])
+        cols.append(ix * g.n + iy)
+        Kv.append(cp["Kz_vox"][ix, iy])
+        cc.append(np.exp(-1j * cp["Kz_vox"][ix, iy] * cp["z_c"]))
+        lin.append((ix * g.n + iy) * g.nz + cp["iz"][ix, iy])
+        hh.append(rq.standard_normal(ix.size) + 1j * rq.standard_normal(ix.size))
+    cols, Kv, cc, lin, hh = map(np.concatenate, (cols, Kv, cc, lin, hh))
+    gy = np.conj(hh) * (rq.standard_normal(hh.size) + 1j * rq.standard_normal(hh.size))
+    Sq = rq.uniform(0.5, 2.0, g.shape)
+    Sq = 0.5 * (Sq + flipK(Sq))
+    numq = (np.bincount(lin, gy.real, g.size) + 1j * np.bincount(lin, gy.imag, g.size)).reshape(g.shape)
+    Jq = np.bincount(lin, np.abs(hh) ** 2, g.size).reshape(g.shape)
+    ref_pv = fuse([(hsym_c(numq), hermitian_sym(Jq))], Sq, "wiener")[0]
+    cw = ColumnWiener(g, cols, Kv, cc)
+    est_cw = cw.solve([cw.data_term(np.abs(hh) ** 2)], [cw.rhs(gy)], Sq)
+    assert np.abs(est_cw - ref_pv).max() < 1e-12 * np.abs(ref_pv).max(), "ColumnWiener == per-voxel"
     print("shearlib selftest OK")
     print(f"  {GODT_SIM!r}")
     print(f"  {GODT_EXP!r}")
